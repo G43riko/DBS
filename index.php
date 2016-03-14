@@ -1,4 +1,21 @@
 <?php
+/*
+	TODO
+
+	- pridať vedlajší panel s podrobnostami do zoznamu pôžičiek
+	- vyhladávanie filmou a tvorcou spolu s vedaljším panelom s podrobnostami a tlačítkom add
+	- pridať k detailu tvorcu tabulku filmou s ROLOU, filmom a rokom kedy sa film natočil
+	- filtrovanie a vyhladávanie v tabulkách
+	+ tabulky spraviť zoraditelne
+	- umožniť upravovanie filmou
+	- umožniť hladanie filmou podla tagu, nazvu, sk_nazvu
+	- GUI uprava pôžičky + uprava v DB
+	- GUI vytvorenie pôžičky + pridanie do DB
+
+	- presunut všetko do viewov(defaultne triedenie, pretypovanie)
+	- všetko spraviť lokalizovatelne
+	- rozdelit JS, CSS, HTML a PHP
+ */
 /**
  * CodeIgniter
  *

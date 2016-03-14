@@ -1,28 +1,36 @@
 <?php if(!isset($hideHeader))$this -> load -> view('header_view.html'); ?>
-	<table class="table table-striped">
-		<?php
-			echo "<tr>";
-			foreach($data as $key => $value)
-					if($value)
-						wrapToTag($value, "th", TRUE);
-			echo "</tr>";
-			foreach($movies as $movie):
-				echo "<tr>";
-				foreach($data as $key => $value)
-					if($value):
-						if($key == "title"){
-							$link = "/movies/movies/detail/" . $movie["movie_id"];
-							wrapToTag("<a href=\"$link\">" . $movie[$key]. "</a>", "td", TRUE);
-						}
-						else if($key == "imdb_id"){
-							$link = "http://www.imdb.com/title/".$movie[$key];
-							wrapToTag("<a target=\"_blank\" href=\"$link\">link</a>", "td", TRUE);
-						}
-						else
-							wrapToTag($movie[$key], "td", TRUE);
-					endif;
-				echo "</tr>";
-			endforeach; 
-		?>
+	<h3><?= word("movies") ?></h3>
+	<a href="<?=movieURL?>search"><?= word("searchMovie")?></a>
+	<table class="table table-striped tablesorter sortable">
+		<thead>
+			<tr>
+				<?php
+					foreach($data as $key => $value)
+						if($value)
+							wrapToTag($value, "th", TRUE);
+				?>
+			</tr>
+		</thead>
+		<tbody>
+			<?php
+				foreach($movies as $movie):
+					echo "<tr>";
+					foreach($data as $key => $value)
+						if($value):
+							if($key == "title"){
+								$link = movieURL . "detail/" . $movie["movie_id"];
+								wrapToTag("<a href=\"$link\">" . $movie[$key]. "</a>", "td", TRUE);
+							}
+							else if($key == "imdb_id"){
+								$link = "http://www.imdb.com/title/".$movie[$key];
+								wrapToTag("<a target=\"_blank\" href=\"$link\">link</a>", "td", TRUE);
+							}
+							else
+								wrapToTag($movie[$key], "td", TRUE);
+						endif;
+					echo "</tr>";
+				endforeach;
+			?>
+		</tbody>
 	</table>
 <?php if(!isset($hideFooter))$this -> load -> view('footer_view.html'); ?>

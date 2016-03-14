@@ -1,15 +1,20 @@
 <?php $this -> load -> view('header_view.html'); ?>
 	<div>
 		<div>
-			<h3>
+			<div class="row">
+			<h1>
 				<?= $name . " (" . (!isset($d_birthday) ? "undefined" : $d_birthday) . ")" ?>
-
-			</h3>
+			</h1>
+			<?php if(isset($avatar)): ?>
+				<div class="col-sm-2">
+					<img class="img-thumbnail" src="<?= $avatar ?>">
+				</div>
+			<?php endif; ?>
 			<div>
 				<table>
 <?php
 	$movies = explode(", ", $movies);
-	$path = "/movies/movies/detail/";
+	$path = movieURL. "detail/";
 	foreach($movies as $val){
 		$tmp = explode(":", $val);
 		wrapToTag(wrapToTag(wrapToTag($tmp[0], "a", false, " href='" . $path . $tmp[1] . "'"), "td"),"tr", 1);

@@ -7,36 +7,153 @@
 		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-
+		<script src="/movies/assets/js/jquery.tablesorter.min.js"></script>
 		<!--<script src="./assets/js/script.js"></script>-->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
-		
+		<style type="text/css">
+			.glist:hover{
+				background-color: rgba(145, 123, 123, .1);
+				cursor: pointer;
+			}
+			.gScrollable{
+				max-height: 320px; 
+				overflow-y: auto;
+			}
+			body{
+				margin-top:50px;
+			}
+		</style>
 		<link href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" rel="stylesheet" />
 		<link rel="stylesheet" href="//code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" />
 		<!--<link rel="stylesheet" href="./assets/css/styles.css" />-->
 		<script type="text/javascript">
+			$(document).ready(function(){ 
+				$(".sortable").tablesorter(); 
+			}); 
 			function loadMovieDetail(imdb_id){
+				console.log(imdb_id);
 				$("#movie_detail_holder").load("http://localhost/movies/movies/parse/" + imdb_id);
 			}
 
 			function searchMovie(){
 				window.location = "http://localhost/movies/movies/search/" + $("#search_input").val();
 			}
+
+			function removeMovie(element){
+				removeMovieFromBasket(element.attr("alt"));
+				element.remove();
+				var n = $("#number");
+				n.text(parseInt(n.text()) - 1);
+			}
+
+			function removeMovieFromBasket(id){
+				if(sessionStorage.hasOwnProperty("basket")){
+					var basket = JSON.parse(sessionStorage.getItem("basket"));
+					delete basket[id];
+					sessionStorage.setItem("basket", JSON.stringify(basket));
+				}
+			}
+
+			function loadMoviesFromBasket(){
+				if(sessionStorage.hasOwnProperty("basket")){
+					var basket = JSON.parse(sessionStorage.getItem("basket"));
+					for(i in basket)
+						addMovie($("<div/>").text(basket[i]).attr("alt", i));
+				}
+			}
+
+			function addMovieToBasket(movie, id){
+				var basket;
+				if(sessionStorage.hasOwnProperty("basket"))
+					basket = JSON.parse(sessionStorage.getItem("basket"));
+				else
+					basket = {};
+
+				basket[id] = movie;
+
+				sessionStorage.setItem("basket", JSON.stringify(basket));
+			}
+
+			function clearBasket(){
+				sessionStorage.removeItem("basket");
+			}
+
+			function clearMovies(el){
+				el.siblings().remove();
+				clearBasket();
+			}
+
+			function addMovie(element){
+				var r = $("<span/>").css({"position" : "absolute", "right" : "20%"});
+				var but = $("<button/>").attr("onclick", "removeMovie($(this).parent().parent())")
+										.text("remove");
+				r.append(but);
+
+				var e = $(element);
+				addMovieToBasket(e.text(), e.attr("alt"));	
+
+				var li = $("<li/>").addClass("list-group-item")
+								   .attr("alt", e.attr("alt"))
+								   .html(e.text())
+								   .append(r);
+
+				$("#movies_list ul").append(li);
+				$("#moviesHints").empty();
+				$("#movies_id").val("");
+
+				var n = $("#number");
+				n.text(parseInt(n.text()) + 1);
+			}
+
+			function getMovies(key){
+				if(key.length > 0)
+					$("#moviesHints").load("/movies/movies/searchInDb/" + encodeURIComponent(key));
+				else
+					$("#moviesHints").empty();
+			}
 		</script>
 	</head>
 	<body>
-		<nav class="navbar navbar-default">
+		<nav class="navbar navbar-default navbar-fixed-top">
 			<div class="container-fluid">
 				<div class="navbar-header">
-					<a class="navbar-brand" href="/movies/movies">DBS-Movies</a>
+					<a class="navbar-brand" href="/movies">DBS-Movies</a>
 				</div>
 				<ul class="nav navbar-nav">
-					<li><a href="/movies/movies">Movies</a></li>
-					<li><a href="/movies/makers">Makers</a></li>
-					<li><a href="/movies/genres">Genres</a></li> 
-					<li><a href="/movies/tags">Tags</a></li> 
-					<li><a href="/movies/countries">Countries</a></li> 
-					<li><a href="/movies/years">Years</a></li> 
+					<?php
+						wrapToTag(makeLink(word("movies"), 		movieURL), 		"li", TRUE);
+						wrapToTag(makeLink(word("makers"), 		makerURL), 		"li", TRUE);
+						wrapToTag(makeLink(word("loans"), 		loanURL), 		"li", TRUE);
+						wrapToTag(makeLink(word("genres"), 		genreURL), 		"li", TRUE);
+						wrapToTag(makeLink(word("tags"),		tagURL), 		"li", TRUE);
+						wrapToTag(makeLink(word("countries"), 	countryURL), 	"li", TRUE);
+						wrapToTag(makeLink(word("years"), 		yearURL), 		"li", TRUE);
+					?>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<?php
+						if(is_login()):
+					?>
+						<li>
+							<a href="<?=logoutURL?>">
+								<span class="glyphicon glyphicon-log-in"></span><?= " " . word("logout")?>
+							</a>
+						</li>
+					<?php
+						else:
+					?>					
+						<li>
+							<a href="<?=regURL?>">
+								<span class="glyphicon glyphicon-user"></span><?= " " . word("register")?>
+							</a>
+						</li>
+						<li>
+							<a href="<?=loginURL?>">
+								<span class="glyphicon glyphicon-log-in"></span><?= " " . word("login")?>
+							</a>
+						</li>
+					<?php
+						endif;
+					?>
 				</ul>
 			</div>
 		</nav>

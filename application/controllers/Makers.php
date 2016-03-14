@@ -6,11 +6,11 @@ if(!defined("BASEPATH"))
 class Makers extends CI_Controller {
 	public function __construct(){
 		parent::__construct();
-		$this -> columns = array("maker_id" 	=> "ID",
-								 "name"			=> "Meno",
-								 "d_birthday" 	=> "Dátum narodenia",
-								 "movies_num"	=> "Pracoval na filmoch",
-								 "d_created"	=> "Vytvorený");
+		$this -> columns = array("maker_id" 	=> word("id"),
+								 "name"			=> word("name"),
+								 "d_birthday" 	=> word("birthday"),
+								 "movies_num"	=> word("workOnMovies"),
+								 "d_created"	=> word("created"));
 	}
 
 	public function index(){
@@ -27,9 +27,9 @@ class Makers extends CI_Controller {
 		echo "<table>";
 		$link = "http://www.imdb.com/name";
 
-		$names = array("name_popular" 	=> "Popular",
-					   "name_exact"		=> "Exact",
-					   "name_substring"	=> "Substring");
+		$names = array("name_popular" 	=> word("popular"),
+					   "name_exact"		=> word("exect"),
+					   "name_substring"	=> word("substring"));
 		
 		if(property_exists($data, "name_popular")):
 			echo wrapToTag(wrapToTag(wrapToTag("Popular", "h3"),"td"),"tr");

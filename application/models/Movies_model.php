@@ -25,7 +25,25 @@ class Movies_model extends CI_Model {
 
 	public function getAllMakers(){
 		//SELECT * FROM movies.makers
-		$q = $this -> db -> get("movies.makers_view");
+		$q = $this -> db -> order_by("movies_num", "desc") -> get("movies.makers_view");
+		return $q -> num_rows() ? $q -> result_array() : false;
+	}
+
+	public function updateMaker($id, $data){
+		$id = quotte($id);
+		$sql = "UPDATE movies.makers 
+				SET d_birthday = to_date('" . $data["d_birthday"] . "', 'YYYY-MM-DD')";
+
+		if($isset($id) && !is_null($id) && !empty($id))
+			$sql .= ",avatar = '" . $data["avatar"] . "'";
+
+		$sql .= "WHERE imdb_id = " . $id ;
+		$this -> db -> query($sql);
+		//$this -> db -> update('movies.makers', $data, "imdb_id = $id");
+	}
+	public function getMakersForUpdate(){
+		$sql = "SELECT * FROM movies.makers m WHERE m.d_birthday IS NULL OR m.avatar IS NULL";
+		$q = $this -> db -> query($sql);
 		return $q -> num_rows() ? $q -> result_array() : false;
 	}
 
@@ -68,7 +86,10 @@ class Movies_model extends CI_Model {
 
 	public function getMovieByName($name){
 		//SELECT * FROM movies.movies WHERE title LIKE '%NAME%';
-		$q = $this -> db -> like('title', $name) -> get("movies.movies");
+		//$q = $this -> db -> like('title', $name) -> get("movies.movies");
+		$name = strtolower(urldecode($name));
+		$sql = "SELECT * FROM movies.movies WHERE lower(title) LIKE '%" . $name . "%'";
+		$q = $this -> db -> query($sql);
 		return $q -> num_rows() ? $q -> result_array() : false;
 	}
 
@@ -139,7 +160,13 @@ class Movies_model extends CI_Model {
 		return $q -> num_rows() ? $q -> result_array()[0] : false;
 	}
 
-
+	/**************************************
+	LOANS
+	**************************************/
+	public function getAllLoans(){
+		$q = $this -> db -> get("movies.loans_view");
+		return $q -> num_rows() ? $q -> result_array() : false;
+	}
 	/**************************************
 	CLEARS
 	**************************************/
@@ -149,13 +176,16 @@ class Movies_model extends CI_Model {
 	**************************************/
 
 	public function getAllYears(){
-		$sql = "SELECT year, count(*) AS movies FROM movies.movies GROUP BY year";
+		$sql = "SELECT year, count(*) AS movies 
+				FROM movies.movies 
+				GROUP BY year 
+				ORDER BY movies DESC, year DESC";
 		$q = $this -> db -> query($sql);
 		return $q -> num_rows() ? $q -> result_array() : false;
 	}
 
 	public function getAllGenres(){
-		$q = $this -> db -> get("movies.genres_view");
+		$q = $this -> db -> order_by("movies", "desc") -> get("movies.genres_view");
 		return $q -> num_rows() ? $q -> result_array() : false;
 	}
 
@@ -173,12 +203,12 @@ class Movies_model extends CI_Model {
 	}
 
 	public function getAllCountries(){
-		$q = $this -> db -> get("movies.countries_view");
+		$q = $this -> db -> order_by("movies", "desc") -> get("movies.countries_view");
 		return $q -> num_rows() ? $q -> result_array() : false;
 	}
 
 	public function getAllTags(){
-		$q = $this -> db -> get("movies.tags_view");
+		$q = $this -> db -> order_by("movies") -> get("movies.tags_view");
 		return $q -> num_rows() ? $q -> result_array() : false;
 	}
 
@@ -188,11 +218,10 @@ class Movies_model extends CI_Model {
 		$result = $this -> getMovieByImdbId($data["imdb_id"]);
 		
 		$data["country"] 	= quotteArray($data["country"]);
-		$data["actors"] 	= quotteArray($data["actors"]);
 		$data["genres"] 	= quotteArray($data["genres"]);
 		$data["tags"] 		= quotteArray($data["tags"]);
-
 		$data["title"] = str_replace("'", "\"", $data["title"]);
+
 
 		if($result)
 			die("film " . $data["title"] . " (". $data["year"]. ") už existuje");
@@ -201,7 +230,8 @@ class Movies_model extends CI_Model {
 					 "title" 	=> $data["title"], 
 					 "rating" 	=> $data["rating"], 
 					 "length" 	=> $data["length"], 
-					 "imdb_id" 	=> $data["imdb_id"]);
+					 "imdb_id" 	=> $data["imdb_id"],
+					 "poster"	=> $data["poster"]);
 
 		if(isset($data["title_sk"]))
 			$arr["title_sk"] = $data["title_sk"];
@@ -219,7 +249,8 @@ class Movies_model extends CI_Model {
 		$dir = $this -> getMakerByName($data["director"]);
 
 		if(!$dir){
-			$this -> db -> insert("movies.makers", array("name" => $data["director"]));
+			$this -> db -> insert("movies.makers", array("name" 	=> $data["director"],
+														 "imdb_id"	=> $data["director_imdb_id"]));
 			$dir = $this -> getMakerByName($data["director"]);
 		}
 		$arr = array("maker_id" => $dir[0]["maker_id"],
@@ -230,9 +261,11 @@ class Movies_model extends CI_Model {
 
 		//pridá hercov
 
-		foreach($data["actors"] as $name):
-			$sql = "INSERT INTO movies.makers (name)
-					SELECT $name
+		foreach($data["actors"] as $actor):
+			$name 	= quotte($actor["name"]);
+			$id 	= quotte($actor["imdb_id"]);
+			$sql = "INSERT INTO movies.makers (name, imdb_id)
+					SELECT $name, $id
 					WHERE  NOT EXISTS (
 						SELECT name
 						FROM   movies.makers
@@ -302,9 +335,14 @@ class Movies_model extends CI_Model {
 
 		//pridá k filmu hercov
 		
+		$actors = array();
+
+		foreach($data["actors"] as $act)
+			$actors[] = quotte($act["name"]);
+
 		$sql = "SELECT maker_id
 				FROM   movies.makers
-				WHERE  name IN (" . join(", ", $data["actors"]). ")";
+				WHERE  name IN (" . join(", ", $actors). ")";
 
 		//$result = $this -> db -> query($sql); //presunuté priamo do foreachu
 		foreach($this -> db -> query($sql) -> result_array() as $id){

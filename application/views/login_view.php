@@ -1,13 +1,17 @@
-<?php $this -> load -> view('header_view.html'); ?>
+<?php if(!isset($hideHeader))$this -> load -> view('header_view.html'); ?>
 		<h1>Prihlásenie</h1>
 		<?php
 			echo validation_errors();
-			echo form_open("auth/login", array('role' => 'form', "class" => "form"));
+			echo form_open("auth/login/" . $page , array('role' => 'form', "class" => "form"));
 
-			drawInputField("email", "email_id", "Email");
-			drawInputField("heslo", "heslo_id", "Heslo", "password");
-			
+			drawInputField(strtolower(word("email")), "email_id",  word("email"));
+			drawInputField(strtolower(word("pass")), "heslo_id", word("pass"), "password");
 			echo form_submit("submit", "prihlásiť", array("class" => "btn btn-default"));
+
+			
+			$attr = 'type="button" class="btn btn-default" onclick="window.location=\'' . regURL . '\' "';
+			wrapToTag("Zaregistrovať", "button", TRUE, $attr);
+			
 			echo form_close();
 		?>
-<?php $this -> load -> view('footer_view.html'); ?>
+<?php if(!isset($hideFooter))$this -> load -> view('footer_view.html'); ?>

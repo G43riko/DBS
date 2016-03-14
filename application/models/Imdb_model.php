@@ -7,13 +7,34 @@ class Imdb_model extends CI_Model {
 		return json_decode($data);
 	}
 
+	public function parseMaker($id){
+		include_once("simple_html_dom.php");
+		$html = file_get_html('http://www.imdb.com/name/' . $id);
+
+		$result = array();
+
+		$r = $html -> find("#overview-top h1 span");
+		if(isset($r[0]))
+			$result["name"] = $r[0] -> innertext;
+
+		$r = $html -> find("time");
+		if(isset($r[0]))
+			$result["birthday"] = $r[0] -> datetime;
+
+		$r = $html -> find("#name-poster");
+		if(isset($r[0]))
+			$result["avatar"] = $r[0] -> src;
+
+		return $result;
+	}
+
 	public function parse($id){
-		include("simple_html_dom.php");
+		include_once("simple_html_dom.php");
 		$html = file_get_html('http://www.imdb.com/title/' . $id);
 
 		$result = array("genres" 	=> array(),
 						"tags" 		=> array(),
-						"country" 	=> array(),
+						"countries" 	=> array(),
 						"actors"	=> array());
 
 		$subtext = $html -> find("div.title_wrapper")[0];
@@ -23,7 +44,14 @@ class Imdb_model extends CI_Model {
 					$result["tags"][] = $item -> innertext;
 					break;
 				case "actor" :
-					$result["actors"][] = trim(str_replace("'", "", $item -> plaintext));
+					$id = $item -> find("a");
+					if(isset($id[0]))
+						$id = $this -> cutImdbId($id[0] -> href);
+					else
+						$id = "";
+					$actor  = array("name" 		=> trim(str_replace("'", "", $item -> plaintext)),
+									"imdb_id"	=> $id);
+					$result["actors"][] = $actor;
 					break;
 			endswitch;
 		}
@@ -49,18 +77,23 @@ class Imdb_model extends CI_Model {
 		/***************
 		LENGTH
 		***************/
-		$result["length"] = $line -> find("time[itemprop=duration]")[0] -> innertext;
+		$r = $line -> find("time[itemprop=duration]");
+		
+		if(isset($r[0])):
+			$result["length"] = $r[0] -> innertext;
 
-		$tmp = explode("h", $result["length"]);
-		$result["length"] = ((int)$tmp[0]) * 60;
-		$result["length"] += ((int)str_replace("min", "", $tmp[1]));
-
+			$tmp = explode("h", $result["length"]);
+			$result["length"] = ((int)$tmp[0]) * 60;
+			$result["length"] += ((int)str_replace("min", "", $tmp[1]));
+		endif;
 
 
 		/***************
 		YEAR
 		***************/
-		$result["year"] = $subtext -> find("h1 a")[0] -> innertext;
+		$r = $subtext -> find("h1 a");
+		if(isset($r[0]))
+			$result["year"] = $r[0] -> innertext;
 
 
 		/***************
@@ -68,25 +101,36 @@ class Imdb_model extends CI_Model {
 		***************/
 		$tmp = $subtext -> find("div.originalTitle");
 		if(count($tmp))
-			$result["title"] = explode("(", $tmp[0] -> plaintext)[0];
-
+			$result["title"] = trim(explode("(", $tmp[0] -> plaintext)[0]);
 		$data = explode("(" . $result["year"] . ")", $subtext -> find("h1")[0] -> plaintext);
 
 		if(!isset($result["title"]))
-			$result["title"] = $data[0];
+			$result["title"] = trim($data[0]);
 		else
-			$result["title_sk"] = $data[0];
+			$result["title_sk"] = trim($data[0]);
 
 
 		/***************
 		DIRECTOR
 		***************/
-		$result["director"] = trim($html -> find("span[itemprop=director] a")[0] -> plaintext);
+		$r = $html -> find("span[itemprop=director] a");
+		if(isset($r[0])){
+			$result["director"] = trim($r[0] -> plaintext);
+			$result["director_imdb_id"] = $this -> cutImdbId($r[0] -> href);
+		}
+		/***************
+		POSTER
+		***************/
+		$r = $html -> find("div.poster img");
+		if(isset($r[0]))
+			$result["poster"] = $r[0] -> src;
 
 		/***************
 		RATING
 		***************/
-		$result["rating"] = $html -> find(".ratingValue span")[0] -> innertext;
+		$r = $html -> find(".ratingValue span");
+		if(isset($r[0]))
+			$result["rating"] = $r[0] -> innertext;
 		
 
 		/***************
@@ -98,6 +142,10 @@ class Imdb_model extends CI_Model {
 		
 		
 		return $result;
+	}
+
+	private function cutImdbId($href){
+		return explode("?", str_replace("/name/", "", $href))[0];
 	}
 	
 	public function findMaker($name){
