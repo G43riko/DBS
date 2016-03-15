@@ -83,20 +83,21 @@
 			}
 
 			function addMovie(element){
-				var r = $("<span/>").css({"position" : "absolute", "right" : "20%"});
-				var but = $("<button/>").attr("onclick", "removeMovie($(this).parent().parent())")
-										.text("remove");
-				r.append(but);
+				var r = $("<span/>",{css:{position:"absolute", right : "20%"}});
+
+
+				$("<button/>", {css 	: {margin : "-8px"},
+								text 	: "remove",
+								class 	: "btn btn-default",
+								onclick : "removeMovie($(this).parent().parent())"}).appendTo(r);
 
 				var e = $(element);
 				addMovieToBasket(e.text(), e.attr("alt"));	
 
-				var li = $("<li/>").addClass("list-group-item")
-								   .attr("alt", e.attr("alt"))
-								   .html(e.text())
-								   .append(r);
+				var li =  $("<li/>",{class 	: "list-group-item",
+									 alt 	: e.attr("alt"),
+									 html 	: e.text()}).append(r).appendTo($("#movies_list ul"));
 
-				$("#movies_list ul").append(li);
 				$("#moviesHints").empty();
 				$("#movies_id").val("");
 

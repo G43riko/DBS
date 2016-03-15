@@ -78,6 +78,7 @@
 		$dictionary["substring"]["sk"]		= "Čiastočná zoda";
 		$dictionary["actors"]["sk"]			= "Herci";
 		$dictionary["searchMovie"]["sk"]	= "Hladať filmy";
+		$dictionary["addMovie"]["sk"]		= "Pridať film";
 		$dictionary["searchMovies"]["sk"]	= "Vyhladávanie filmou";
 		$dictionary["persons"]["sk"]		= "Uživatelov";
 		$dictionary["undefinedWord"]["sk"]	= "Neznáme slovo";

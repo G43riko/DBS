@@ -12,6 +12,8 @@
 	- GUI uprava pôžičky + uprava v DB
 	- GUI vytvorenie pôžičky + pridanie do DB
 
+	- upraviť zobrazovanie detailu s filmu aj na základe dát s DB aj s dát s Parsera
+
 	- presunut všetko do viewov(defaultne triedenie, pretypovanie)
 	- všetko spraviť lokalizovatelne
 	- rozdelit JS, CSS, HTML a PHP

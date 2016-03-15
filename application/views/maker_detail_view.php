@@ -17,7 +17,8 @@
 	$path = movieURL. "detail/";
 	foreach($movies as $val){
 		$tmp = explode(":", $val);
-		wrapToTag(wrapToTag(wrapToTag($tmp[0], "a", false, " href='" . $path . $tmp[1] . "'"), "td"),"tr", 1);
+		$d = wrapToTag($tmp[0], "a", 0, " href='" . $path . $tmp[1] . "'");
+		wrapToTag(wrapToTag($d , "td") . wrapToTag(" - " . $tmp[2] , "td"), "tr", 1);
 	}
 ?>
 				</table>

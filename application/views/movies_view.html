@@ -1,6 +1,12 @@
 <?php if(!isset($hideHeader))$this -> load -> view('header_view.html'); ?>
-	<h3><?= word("movies") ?></h3>
-	<a href="<?=movieURL?>search"><?= word("searchMovie")?></a>
+	<h3>
+		<?= word("movies") ?>
+	</h3>
+	<a href="<?=movieURL?>search"><?= word("addMovie")?></a>
+	|
+	<label for="movie_key"> Hladať film:</label>
+	<input type="text" class="form-control-input" id="movie_key" placeholder="Hladať film">
+	
 	<table class="table table-striped tablesorter sortable">
 		<thead>
 			<tr>

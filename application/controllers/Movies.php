@@ -56,7 +56,7 @@ class Movies extends CI_Controller {
 		$names = array("title_popular" 		=> "Popular",
 					   "title_exact"		=> "Exact",
 					   "title_substring"	=> "Substring");
-		
+		$name = urldecode($name);
 		$data = empty($name) ? array() : get_object_vars($this -> imdb_model -> findMovie($name));
 
 		$data = array("data"	=> $data,

@@ -32,15 +32,20 @@
 		<div class="col-sm-6 well" id="movies_list">
 			<ul class='list-group'>
 				<li class='list-group-item'>
-					<span style="margin-left: 80px;"><?= word("totalPrice")?>: <span id="price">0</span>€<span>
-					<span style="margin-left: 80px;"><?= word("numOfMovies")?>: <span id="number">0</span><span>
-					<input type="button" value="<?= word('clearBasket')?>" onclick="clearMovies($(this).parent().parent().parent().parent().parent())">
+					<span style="margin-left: 80px;"><?= word("numOfMovies")?>: <span id="price">0</span>€<span>
+					<span style="margin-left: 80px;"><?= word("totalPrice")?>: <span id="number">0</span><span>
+					<input type="button" class="btn btn-default" value="<?= word('clearBasket')?>" onclick="clearMovies($(this).parent().parent().parent().parent().parent())">
 				</li>
 			</ul>
 		</div>
 		<div class="col-sm-6">
 			<input type="text" name="movies" class="form-control" id="movies_id" placeholder="<?= word('enterMovies')?>" onkeyup="getMovies(this.value)">
 			<div id="moviesHints"></div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm-6">
+			<input type="submit" value="Dokončiť pôžičku" class="btn btn-default">
 		</div>
 	</div>
 	<?php

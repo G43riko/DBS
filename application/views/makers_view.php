@@ -1,5 +1,7 @@
 <?php $this -> load -> view('header_view.html'); ?>
 	<h3><?= word("makers") ?></h3>
+	<label for="movie_key"> Hladať tvorcu:</label>
+	<input type="text" class="form-control-input" id="movie_key" placeholder="Hladať film">
 	<table class="table table-striped sortable">
 		<thead>
 			<tr>
