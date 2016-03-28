@@ -17,16 +17,16 @@ class Persons_model extends CI_Model {
 
 	function check(){
 		//SELECT * FROM movies.persons WHERE email = 'E' AND heslo = 'H';
-		$data = $this -> db -> where("email", $_POST["email"])
-							-> where("password", sha1($_POST["heslo"]))
+		$data = $this -> db -> where("email", $_POST[strtolower(word("email"))])
+							-> where("password", sha1($_POST[strtolower(word("pass"))]))
 							-> get("movies.persons");
-
+		
 		return $data -> num_rows();
 	}
 
 	function getUserData($email){
 		//SELECT first_name, second_name, email, d_birthday FROM movies.persons WHERE email = 'E' LIMIT 1
-		$data = $this -> db -> select("first_name, second_name, email, d_birthday")
+		$data = $this -> db -> select("first_name, second_name, email, d_birthday, person_id")
 							-> where("email", $email) 
 							-> limit(1) 
 							-> get("movies.persons");

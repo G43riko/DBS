@@ -3,20 +3,36 @@
 	TODO
 
 	- pridať vedlajší panel s podrobnostami do zoznamu pôžičiek
-	- vyhladávanie filmou a tvorcou spolu s vedaljším panelom s podrobnostami a tlačítkom add
-	- pridať k detailu tvorcu tabulku filmou s ROLOU, filmom a rokom kedy sa film natočil
+	+ vyhladávanie filmou a tvorcou spolu s vedaljším panelom s podrobnostami a tlačítkom add
+	+ pridať k detailu tvorcu tabulku filmou s ROLOU, filmom a rokom kedy sa film natočil
 	- filtrovanie a vyhladávanie v tabulkách
 	+ tabulky spraviť zoraditelne
-	- umožniť upravovanie filmou
-	- umožniť hladanie filmou podla tagu, nazvu, sk_nazvu
-	- GUI uprava pôžičky + uprava v DB
-	- GUI vytvorenie pôžičky + pridanie do DB
+	+ umožniť upravovanie filmou
+	-	ukladať zmeny
+	- umožniť upravovanie tvorcov
+	-	ukladať zmeny
+	- umožniť pridavanie tvorcov
+	- umožniť pridavanie žánrov
+	- umožniť pridávanie tagov
+	- umožniť pridávanie krajín
+	+ umožniť hladanie filmou podla tagu, nazvu, sk_nazvu
+	- prioritu herca vo filme
+	- priorita filmoveho žanru
 
+
+	- GUI uprava pôžičky + uprava v DB
+	+ GUI vytvorenie pôžičky + pridanie do DB
+	- loadnuť data o hercoch pri pridávani filmu
 	- upraviť zobrazovanie detailu s filmu aj na základe dát s DB aj s dát s Parsera
+	
+	+ show movie and maker detail in modal
 
 	- presunut všetko do viewov(defaultne triedenie, pretypovanie)
-	- všetko spraviť lokalizovatelne
-	- rozdelit JS, CSS, HTML a PHP
+	+ všetko spraviť lokalizovatelne
+	+ rozdelit JS
+	+ rozdelit CSS
+	- rozdelit HTML
+	- rozdelit PHP
  */
 /**
  * CodeIgniter

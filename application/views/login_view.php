@@ -6,11 +6,11 @@
 
 			drawInputField(strtolower(word("email")), "email_id",  word("email"));
 			drawInputField(strtolower(word("pass")), "heslo_id", word("pass"), "password");
-			echo form_submit("submit", "prihlásiť", array("class" => "btn btn-default"));
+			echo form_submit("submit", word("login"), array("class" => "btn btn-default"));
 
 			
 			$attr = 'type="button" class="btn btn-default" onclick="window.location=\'' . regURL . '\' "';
-			wrapToTag("Zaregistrovať", "button", TRUE, $attr);
+			wrapToTag(word("register"), "button", TRUE, $attr);
 			
 			echo form_close();
 		?>

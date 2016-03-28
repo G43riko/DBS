@@ -55,17 +55,23 @@ $route['translate_uri_dashes'] = FALSE;
 
 $route['login/(:any)'] = 'auth/login/$1';
 $route['register/(:any)'] = 'auth/register/$1';
+$route['logout/(:any)'] = 'auth/logout/$1';
 
 $route['register'] = 'auth/register';
 $route['login'] = 'auth/login';
 $route['logout'] = 'auth/logout';
+
+$route['years'] = 'others/years';
+$route['tags'] = 'others/tags';
+$route['genres'] = 'others/genres';
+$route['countries'] = 'others/countries';
 
 $route['tags/(:any)'] = 'others/tags/$1';
 $route['years/(:any)'] = 'others/years/$1';
 $route['genres/(:any)'] = 'others/genres/$1';
 $route['countries/(:any)'] = 'others/countries/$1';
 
-$route['years'] = 'others/years';
-$route['tags'] = 'others/tags';
-$route['genres'] = 'others/genres';
-$route['countries'] = 'others/countries';
+$route['tags/(:any)/(:any)'] = 'others/tags/$1/$2';
+$route['years/(:any)/(:any)'] = 'others/years/$1/$2';
+$route['genres/(:any)/(:any)'] = 'others/genres/$1/$2';
+$route['countries/(:any)/(:any)'] = 'others/countries/$1/$2';

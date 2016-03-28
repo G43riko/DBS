@@ -6,18 +6,24 @@ if(!defined("BASEPATH"))
 class Others extends CI_Controller {
 	public function __construct(){
 		parent::__construct();
+
+		$this -> load -> model("movies_model");
+
 		$this -> genres = array("genre_id" 	=> FALSE,//"ID",
 								"name" 		=> word("title"),
 								"d_created" => word("created"),
 								"movies" 	=> word("inMovies"));
+
 		$this -> countries = array("country_id" => FALSE,//"ID",
 								   "name" 		=> word("title"),
 								   "d_created"	=> word("created"),
 								   "movies" 	=> word("inMovies"));
-		$this -> tags = array("tag_id" 	=> FALSE,//"ID",
+
+		$this -> tags = array("tag_id" 		=> FALSE,//"ID",
 							  "name" 		=> word("title"),
 							  "d_created"	=> word("created"),
 							  "movies"		=> word("inMovies"));
+
 		$this -> years = array("year" 		=> word("year"),
 							   "movies"		=> word("inMovies"));
 
@@ -25,7 +31,7 @@ class Others extends CI_Controller {
 								 "title" 		=> word("title"),
 								 "title_sk" 	=> word("titleSK"),
 								 "year" 		=> word("year"),
-								 "length" 		=> word("year"),
+								 "length" 		=> word("length"),
 								 "rating" 		=> word("rating"),
 								 "genres" 		=> FALSE,
 								 "tags" 		=> FALSE,//"Tagy",
@@ -33,99 +39,57 @@ class Others extends CI_Controller {
 								 "actors" 		=> FALSE,//"Herci",
 								 "d_created" 	=> word("created"),
 								 "director" 	=> word("director"),
-								 "imdb_id" 		=> word("imdbId"));
+								 "imdb_id" 		=> word("imdbID"));
 	}
 
-	public function genres($id = "all"){
-		$this -> load -> model("movies_model");
-		if($id == "all"):
-			$data = $this -> movies_model -> getAllGenres();
-			$this -> load -> view("other_view", array("data" 	=> $data,
+	public function genres($genre = "all", $name = ""){
+		if($genre == "all")
+			$this -> load -> view("other_view", array("data" 	=> $this -> movies_model -> getAllGenres(),
 													  "columns"	=> $this -> genres,
 													  "title" 	=> word("genres"),
 													  "path"	=> genreURL));
-		else:
-			$data = $this -> movies_model -> getMoviesByGenre($id);
-			foreach($data as $key => $val){
-				$data[$key]["director"] = prepareData($val["director"], makerURL . "detail/");
-				$data[$key]["year"] = wrapToTag($val["year"], "a", false, "href='" . yearURL . $val["year"] . "'");
-			}
-			if($data)
-				$this -> load -> view('movies_view.html', array("movies" => $data,
-						  										"data"   => $this -> columns));
-			else
-				echo "nenašli sa žiadny filmy žánru $id";
-		endif;
+		else
+			$this -> show($this -> movies_model -> getMoviesByGenre($genre, $name), "genres/$genre/");
 	}
 
-	public function countries($id = "all"){
-		$this -> load -> model("movies_model");
-		if($id == "all"):
+
+	public function countries($country = "all", $name = ""){
+		if($country == "all")
 			$this -> load -> view("other_view", array("data" 	=> $this -> movies_model -> getAllCountries(),
 													  "columns"	=> $this -> countries,
 													  "title" 	=> word("countries"),
 													  "path"	=> countryURL));
-		else:
-			$data = $this -> movies_model -> getMoviesByCountry($id);
-			foreach($data as $key => $val){
-				$data[$key]["director"] = prepareData($val["director"], makerURL . "detail/");
-				$data[$key]["year"] = wrapToTag($val["year"], "a", false, "href='" . yearURL . $val["year"] . "'");
-			}
-			
-			if($data){
-				$this -> load -> view('movies_view.html', array("movies" => $data,
-						  										"data"   => $this -> columns));
-			}
-			else
-				echo "nenašli sa žiadny filmy vyrobené v $id";
-		endif;
+		else
+			$this -> show($this -> movies_model -> getMoviesByCountry($country, $name), "countries/$country/");
 	}
 
-	public function tags($id = "all"){
-		$this -> load -> model("movies_model");
-		if($id == "all"):
+	public function tags($tag = "all", $name = ""){
+		if($tag == "all")
 			$this -> load -> view("other_view", array("data" 	=> $this -> movies_model -> getAllTags(),
 													  "columns"	=> $this -> tags,
 													  "title" 	=> word("tags"),
 													  "path"	=> tagURL));
-		else:
-			$data = $this -> movies_model -> getMoviesByTag($id);
-			foreach($data as $key => $val){
-				$data[$key]["director"] = prepareData($val["director"], makerURL . "detail/");
-				$data[$key]["year"] = wrapToTag($val["year"], "a", false, "href='" . yearURL . $val["year"] . "'");
-			}
-			if($data){
-				$this -> load -> view('movies_view.html', array("movies" => $data,
-						  										"data"   => $this -> columns));
-			}
-			else
-				echo "nenašli sa žiadne filmy s tagom $id";
-		endif;
+		else
+			$this -> show($this -> movies_model -> getMoviesByTag($tag, $name), "tags/$tag/");
 	}
-	public function years($year = "all"){
-		$this -> load -> model("movies_model");
-		if($year == "all"):
-			$data = $this -> movies_model -> getAllYears();
 
-			foreach($data as $key => $val)
-				$data[$key]["year"] = wrapToTag($val["year"], "a", false, "href='" . yearURL . $val["year"] . "'");
-
-			$this -> load -> view("other_view", array("data" 	=> $data,
+	public function years($year = "all", $name = ""){
+		if($year == "all")
+			$this -> load -> view("other_view", array("data" 	=> $this -> movies_model -> getAllYears(),
 													  "columns"	=> $this -> years,
 													  "title" 	=> word("years"),
 													  "path"	=> yearURL));
-		else:
-			$data = $this -> movies_model -> getMoviesByYear($year);
-			if($data){
-				foreach($data as $key => $val)
-					$data[$key]["director"] = prepareData($val["director"], makerURL . "detail/");
-				$tmp = $this -> columns;
-				$tmp["year"] = FALSE;
-				$this -> load -> view('movies_view.html', array("movies" => $data,
-						  										"data"   => $tmp));
-			}
-			else
-				echo "nenašli sa žiadne filmy vyrobene v roku $year";
-		endif;
+		else
+			$this -> show($this -> movies_model -> getMoviesByYear($year, $name), "years/$year/");
+	}
+
+	private function show($data, $path){
+		if($data)
+			$data = prepareLocalData($data, array("year" 	 	 => yearURL,
+												  "director"	 => makerDetailURL));
+
+		$this -> load -> view('movies_view.html', array("movies" => $data,
+				  										"data"   => $this -> columns,
+				  										"path"	 => $path));
 	}
 }

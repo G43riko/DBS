@@ -16,7 +16,7 @@ class Welcome extends CI_Controller {
 					  word("loans")		=> $this -> statistics_model -> getNumberOf("movies.loans"),
 					  word("persons") 	=> $this -> statistics_model -> getNumberOf("movies.persons"));
 		$data = array();
-		$data["number"] = array("head" => array("Typ", "Počet"), 
+		$data["number"] = array("head" => array(word("type"), word("count")), 
 								"body" => $body);
 
 		$num = 7;
@@ -25,19 +25,28 @@ class Welcome extends CI_Controller {
 								"best" 		=> $this -> statistics_model -> getNBestMovies($num),
 								"newest" 	=> $this -> statistics_model -> getNNewestMovies($num));
 
-		$data["genres"] = array("head" 	=> array("Genre", "Num"),
+		$data["genres"] = array("head" 	=> array(word("genre"), word("count")),
 								"body"	=> $this -> statistics_model -> getNthRecentGenres($num - 1));
 
-		$data["years"]  = array("head" 	=> array("Year", "Num"),
+		$data["tags"] = array("head" 	=> array(word("tag"), word("count")),
+								"body"	=> $this -> statistics_model -> getNthRecentTags($num - 1));
+
+		$data["years"]  = array("head" 	=> array(word("year"), word("count")),
 								"body"	=> $this -> statistics_model -> getNthRecentYears($num - 1));
 
-		$data["makers"] = array("head" 	=> array("Maker", "Num"),
+		$data["makers"] = array("head" 	=> array(word("maker"), word("count")),
 								"body"	=> $this -> statistics_model -> getNthRecentMakers($num - 1));
+
+		$data["actors"] = array("head" 	=> array(word("maker"), word("count")),
+								"body"	=> $this -> statistics_model -> getNthRecentActors($num - 1));
+
+		$data["directors"] 	= array("head" 	=> array(word("maker"), word("count")),
+									"body"	=> $this -> statistics_model -> getNthRecentDirectors($num - 1));
 		
-		$data["countries"]  = array("head" 	=> array("Year", "Num"),
+		$data["countries"]  = array("head" 	=> array(word("country"), word("count")),
 									"body"	=> $this -> statistics_model -> getNthRecentCountries($num - 1));
 
-
+		
 		
 		$this -> load -> view("statistics_view", array("page" => $id, 
 													   "data" => $data));

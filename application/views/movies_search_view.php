@@ -2,10 +2,14 @@
 	<h3><?= word("searchMovies") ?></h3>
 	<div>
 		<div class="row">
-			<div class="well well-sm">
-				<label for="search">Search:</label>
-				<input type="text" placeholder="key" id="search_input" <?php echoIf($name, "value='$name'"); ?>>
-				<input type="button" value="hladat" onclick="searchMovie()">
+			<div class="well well-sm form-group">
+				<label for="search_input">Search:</label>
+				<input 	type="text" 
+						class="form-control" 
+						placeholder="key" 
+						style="display: inline; width:200px;"
+						id="search_input" <?php nvl($name, "value='$name'"); ?>>
+				<input class= "btn btn-default" type="button" value="hladat" onclick="searchMovie()">
 			</div>
 		</div>
 		<div class="row">
@@ -15,16 +19,20 @@
 	foreach($names as $key => $value):
 		if((!$vypis || $val > ++$i) && isset($data[$key])):
 			$vypis = 1;
-			echo wrapToTag(wrapToTag(wrapToTag($value, "h3"),"td", 0, "colspan='3'"),"tr");
+			wrapToTag(wrapToTag(wrapToTag($value, "h3"),"td", 0, "colspan='3'"),"tr", 1);
 
 			foreach($data[$key] as $row):
-				$v = get_object_vars($row);;
-				$line = "<a target='_blank' href='$link/" . $v["id"] . " '>" . $v["title"] . " </a>";
-				$line = wrapToTag($line, "td");
+				$v = get_object_vars($row);
+				$line = wrapToTag(makeLink($v["title"], "$link/" . $v["id"], 0, 1), "td");
 				$line .= wrapToTag(explode(",", $v["description"])[0], "td");
-				$v = wrapToTag("info", "button",0 , "onclick='loadMovieDetail(\"" . $v["id"] . "\")'");
-				$line .= wrapToTag($v, "td");
-				wrapToTag($line, "tr", TRUE);
+				$tmp = wrapToTag("<i class='fa fa-refresh fa-spin'></i>", "span", 0, "class='spinner'");
+				$d = "class='btn btn-default btn-large has-spinner spinerable' ";
+				$d .= "onclick='loadMovieDetail(\"" . $v["id"] . "\", this)'";
+				$tmp = wrapToTag($tmp . "parseInfo", "button",0 , $d);
+				if(isset($v["dbId"]))
+					$tmp .= " " . makeLink("profil", movieDetailURL . $v["dbId"], 0, 1);
+				$line .= wrapToTag($tmp, "td", 0, "style='width: 160px;'");
+				wrapToTag($line, "tr", 1);
 			endforeach;
 		endif;			
 	endforeach;

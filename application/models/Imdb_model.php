@@ -34,7 +34,7 @@ class Imdb_model extends CI_Model {
 
 		$result = array("genres" 	=> array(),
 						"tags" 		=> array(),
-						"countries" 	=> array(),
+						"country" => array(),
 						"actors"	=> array());
 
 		$subtext = $html -> find("div.title_wrapper")[0];
@@ -45,10 +45,8 @@ class Imdb_model extends CI_Model {
 					break;
 				case "actor" :
 					$id = $item -> find("a");
-					if(isset($id[0]))
-						$id = $this -> cutImdbId($id[0] -> href);
-					else
-						$id = "";
+					$id = count($id) ? $this -> cutImdbId($id[0] -> href) : "";
+
 					$actor  = array("name" 		=> trim(str_replace("'", "", $item -> plaintext)),
 									"imdb_id"	=> $id);
 					$result["actors"][] = $actor;
@@ -79,7 +77,7 @@ class Imdb_model extends CI_Model {
 		***************/
 		$r = $line -> find("time[itemprop=duration]");
 		
-		if(isset($r[0])):
+		if(count($r)):
 			$result["length"] = $r[0] -> innertext;
 
 			$tmp = explode("h", $result["length"]);
@@ -92,8 +90,8 @@ class Imdb_model extends CI_Model {
 		YEAR
 		***************/
 		$r = $subtext -> find("h1 a");
-		if(isset($r[0]))
-			$result["year"] = $r[0] -> innertext;
+		if(count($r))
+			$result["year"] = intval($r[0] -> innertext);
 
 
 		/***************
@@ -114,31 +112,31 @@ class Imdb_model extends CI_Model {
 		DIRECTOR
 		***************/
 		$r = $html -> find("span[itemprop=director] a");
-		if(isset($r[0])){
-			$result["director"] = trim($r[0] -> plaintext);
-			$result["director_imdb_id"] = $this -> cutImdbId($r[0] -> href);
+		if(count($r)){
+			$result["director"] = array("name" 		=> trim($r[0] -> plaintext),
+										"imdb_id"	=> $this -> cutImdbId($r[0] -> href));
 		}
 		/***************
 		POSTER
 		***************/
 		$r = $html -> find("div.poster img");
-		if(isset($r[0]))
+		if(count($r))
 			$result["poster"] = $r[0] -> src;
 
 		/***************
 		RATING
 		***************/
 		$r = $html -> find(".ratingValue span");
-		if(isset($r[0]))
-			$result["rating"] = $r[0] -> innertext;
+		if(count($r))
+			$result["rating"] = floatval($r[0] -> innertext);
 		
 
 		/***************
 		COUNTRY
 		***************/
 		foreach($html -> find("#titleDetails div") as $item)
-			if($item -> first_child() -> innertext == "Country:")
-				$result["country"][] = $item -> children(1) -> innertext;
+			if($item -> first_child() -> plaintext == "Country:")
+				$result["countries"] = explode("|", explode(":", str_replace(" ", "", $item -> plaintext))[1]);
 		
 		
 		return $result;

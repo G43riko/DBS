@@ -6,23 +6,23 @@
 				<?php
 					foreach($columns as $key => $value):
 						if($value)
-							echo wrapToTag($value, "th");
+							wrapToTag($value, "th", 1);
 					endforeach; 
 				?>
 			</tr>
 		</thead>
 		<tbody>
 			<?php
-			foreach($data as $genre):
+			foreach($data as $values):
 				echo "<tr>";
 				foreach($columns as $key => $value):
 					if($value){
-						if($key == "name"){
-							$n = $genre[$key];
-							wrapToTag(wrapToTag($n, "a", false, "href='" . $path . $n . "'"), "td", true);
-						}
+						if($key == "name")
+							wrapToTag(makeLink($values[$key], $path . $values[$key]), "td", 1);
+						else if($key == "year")
+							wrapToTag(makeLink($values[$key], yearURL . $values[$key]), "td", 1);
 						else
-							wrapToTag($genre[$key], "td", true);
+							wrapToTag($values[$key], "td", 1);
 					}
 				endforeach;
 				echo "</tr>";

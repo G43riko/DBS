@@ -1,34 +1,48 @@
 <?php $this -> load -> view('header_view.html'); ?>
 	<h3><?= word("makers") ?></h3>
-	<label for="movie_key"> Hladať tvorcu:</label>
-	<input type="text" class="form-control-input" id="movie_key" placeholder="Hladať film">
+	<label for="movie_key"> <?= word("searchMaker")?>:</label>
+	<input 	type="text" 
+			class="form-control-input" 
+			id="movie_key" 
+			placeholder="<?= word("search")?>"  
+			<?php if(isset($search))echo "value='$search'"; ?>
+			autofocus
+			onkeyup="searchMakerDB(event)">
 	<table class="table table-striped sortable">
 		<thead>
 			<tr>
 				<?php
 					foreach($data as $key => $value)
 						if($value)
-							wrapToTag($value, "th", TRUE);
+							wrapToTag($value, "th", 1);
 				?>
 			</tr>
 		</thead>
 		<tbody>
 			<?php
-			foreach($makers as $maker):
-				echo "<tr>";
-				foreach($data as $key => $value)
-					if($value){
-						if($key == "name"){
-							$link = makerURL . "detail/" . $maker["maker_id"];
-							$link = makeLink("$maker[$key]", $link);
-							wrapToTag($link, "td", TRUE);
-						}
-						else
-							wrapToTag($maker[$key], "td", TRUE);
-					}
-			
-				echo "</tr>";
-			endforeach; 
+			if($makers)
+				foreach($makers as $maker):
+					echo "<tr>";
+					foreach($data as $key => $value):
+						if($value):
+							if($key == "name"){
+								/*
+								$link = makeLink("$maker[$key]",  makerDetailURL . $maker["maker_id"]);
+								wrapToTag($link, "td", 1);
+								*/
+								$attr = "data-toggle='modal' data-target='#detailModal' ";
+								$link = wrapToTag($maker[$key], "a", 0, "style='cursor: pointer;' $attr");
+								$attr = "onclick='loadMakerModal(" . $maker["maker_id"] . ")'";
+								wrapToTag($link, "td", 1, $attr);
+							}
+							else
+								wrapToTag($maker[$key], "td", 1);
+						endif;
+					endforeach;
+					echo "</tr>";
+				endforeach; 
+			else
+				wrapToTag(wrapToTag(word("noResults"), "td", 0, "colspan='" . count($data). "'"), "tr", 1);
 		?>
 		</tbody>
 	</table>

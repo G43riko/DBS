@@ -1,12 +1,16 @@
 <?php
 
-if(!defined("BASEPATH")) exit("No direct script access allowed");
+if(!defined("BASEPATH")) 
+	exit("No direct script access allowed");
 
 class Auth extends CI_Controller {
-
-	function register($page = ""){
+	public function __construct(){
+		parent::__construct();
 		$this -> load -> model("persons_model");
 		$this -> load -> library("form_validation");
+	}
+
+	function register($page = ""){
 		$w = word("firstName");
 		$this -> form_validation -> set_rules(strtolower($w), $w, "trim|required");
 		$w = word("secondName");
@@ -14,7 +18,7 @@ class Auth extends CI_Controller {
 		$w = word("email");
 		$this -> form_validation -> set_rules(strtolower($w), $w, "trim|required|valid_email");
 		$w = word("pass");
-		$this -> form_validation -> set_rules(strtolower(word("pass")), $w, "trim|required|min_length[4]");	
+		$this -> form_validation -> set_rules(strtolower($w), $w, "trim|required|min_length[4]");	
 		
 		if($this -> form_validation -> run() && $this -> persons_model -> register())
 			redirect("/" . $page);
@@ -23,14 +27,8 @@ class Auth extends CI_Controller {
 	}
 
 	function login($page = ""){
-
-		$this -> load -> model("persons_model");
-		$this -> load -> library("form_validation");
-
-		$w = word("email");
-		$this -> form_validation -> set_rules(strtolower($w), $w, "trim|required");
-		$w = word("pass");
-		$this -> form_validation -> set_rules(strtolower(word("pass")), $w, "trim|required");	
+		$this -> form_validation -> set_rules(strtolower(word("email")), word("email"), "trim|required");
+		$this -> form_validation -> set_rules(strtolower(word("pass")), word("pass"), "trim|required");	
 
 		if($this -> form_validation -> run())
 			if($this -> persons_model -> check()){
@@ -54,6 +52,6 @@ class Auth extends CI_Controller {
 												 "d_created", 
 												 "d_birthday"));
 		$this -> session -> set_userdata("logged_in", 0);
-		redirect("/" . $page);
+		redirect("/" . str_replace("_", "/", $page));
 	}
 }

@@ -1,40 +1,42 @@
-
 <?php if(!isset($hideHeader))$this -> load -> view('header_view.html'); ?>
-	<div>
-		<div>
-			<div class="row">
-				<h1><?= (isset($title_sk) ? $title_sk : $title) . " (" . $year . ")" ?></h1>
-				<?php if(isset($poster)): ?>
-					<div class="col-sm-2">
-						<img class="img-thumbnail" usemap="#s" src="<?= $poster ?>">
-					</div>
-				<?php endif; ?>
-				<div >
-					<?php
-						if(isset($title_sk))
-							wrapToTag($title, "h3", TRUE);
-					?>
-					<span>
-						<?php
-							echo $rating * 10  . "% | " . $length  . " min | ";
-							echo echoArray($genres, ", ") . " | ";
-							echo echoArray($countries, ", ")	 . " | ";
-							
-							echo $director . " | ";
-							wrapToTag("imdb", "a", 1, "target='_blank' href='http://www.imdb.com/title/" . $imdbId . "'");
-						?>
-					</span>
-					<div>
-						<h4><?= word("tags")?></h4>
-						<?= echoArray($tags, ", ") ?>
-					</div>
-					<div style="width:100%;">
-						<h4><?= word("actors")?></h4>
-						<?= echoArray($actors, ", ") ?>
-					</div>
-				</div>
-			</div>
-			
+	<div class="row">
+		<div class="modal-header">
+			<h1>
+				<?= (isset($title_sk) ? $title_sk : $title) . " (" . $year . ")" ?>
+			</h1>
+		</div>
+		<div class="modal-body">
+			<?php if(isset($movie_id)) echo "<blockquote>" ?>
+			<table style="width: 100%">
+				<tr>
+	<?php if(isset($poster)): ?>
+		<td rowspan=10 width="25%">
+			<img style="width:90%" class="img-thumbnail" usemap="#s" src="<?= getImage($poster) ?>">
+		</td>
+	<?php endif; ?>
+					<td valign="top"><p><?= $rating * 10  . "% | " . $length  . " min | " . 
+					(is_array($director) ? $director["name"] : $director) ?></td>
+				</tr>
+				<tr><td valign="top"><p><?= word("genres")	 . ": " . echoArray($genres) ?></p></td></tr>
+				<tr><td valign="top"><p><?= word("countries") . ": " . echoArray($countries) ?></p></td></tr>
+				<tr><td valign="top"><p><?= word("tags") 	 . ": " . echoArray($tags) ?></p></td></tr>
+				<tr><td valign="top"><p><?= word("actors")    . ": </br>". echoArray($actors) ?></p></td></tr>
+			</table>
+			<?php if(isset($movie_id)): ?>
+				<footer>Film bol pridaný: <?= $d_created ?></footer>
+				</blockquote>
+			<?php endif; ?>
+		</div>
+		<div class="modal-footer">
+			<?php
+				$class = 'class="btn btn-default"';
+
+				makeLink("<button $class>IMDB</button>", imdbMovieURL . $imdb_id, 1, 1);
+				if(isset($csfd_id))
+					makeLink("<button $class>CSFD</button>", csfdMovieURL . $csfd_id, 1, 1);
+				if(isset($movie_id) && is_login())
+					makeLink(wrapToTag("upraviť", "button", 0, $class), movieEditURL . $movie_id, 1, 0);
+			?>
 		</div>
 	</div>
 <?php if(!isset($hideFooter))$this -> load -> view('footer_view.html'); ?>

@@ -2,23 +2,23 @@
 
 class Statistics_model extends CI_Model {
 /*
-počet filmou
-počet hercou
-počet žánrou
-počet tagov
-počet štatov
-počet požičiek(aktualnych / všetkych)
-počet uživatelov
++počet filmou
++počet hercou
++počet žánrou
++počet tagov
++počet štatov
+-počet požičiek(aktualnych / všetkych)
+-počet uživatelov
 
-najlepšie filmy
-najnovšie pridane filmy
-najdlhšie filmy
++najlepšie filmy
++najnovšie pridane filmy
++najdlhšie filmy
 
-najnovšie natočené filmy
-najaktívnejší herci
-najlepšie žánre
-najlepšie tagy
-najlepšie štáty
+-najnovšie natočené filmy
++najlepší herci
++najlepšie žánre
++najlepšie tagy
++najlepšie štáty
 
 najnovší úživatelia
 */
@@ -35,7 +35,7 @@ najnovší úživatelia
 	}
 
 	private function getNFromBy($num, $from, $by){
-		$sql = "SELECT * FROM $from ORDER BY $by DESC LIMIT $num";
+		$sql = "SELECT * FROM $from WHERE replaced_by IS NULL ORDER BY $by DESC LIMIT $num";
 		$q = $this -> db -> query($sql);
 		return $q -> num_rows() ? $q -> result_array() : false;
 	}
@@ -49,7 +49,11 @@ najnovší úživatelia
 	}
 
 	public function getNNewestMovies($num){
-		$sql = "SELECT movie_id, title, to_char(d_created, 'DD.MM.YYYY') as d_created FROM movies.movies ORDER BY d_created DESC LIMIT " . $num;
+		$sql = "SELECT movie_id, title, to_char(d_created, 'DD.MM.YYYY') as d_created 
+				FROM movies.movies
+				WHERE replaced_by IS NULL
+				ORDER BY d_created DESC 
+				LIMIT " . $num;
 		$q = $this -> db -> query($sql);
 		return $q -> num_rows() ? $q -> result_array() : false;
 	}
@@ -58,6 +62,17 @@ najnovší úživatelia
 		$sql = "SELECT mg.name, count(*) as num
 				FROM movies.c_genres mg
 				JOIN movies.mtm_movie_genre mmg on mg.genre_id = mmg.genre_id
+				GROUP BY mg.name 
+				ORDER BY num DESC, mg.name 
+				LIMIT $num";
+		$q = $this -> db -> query($sql);
+		return $q -> num_rows() ? $q -> result_array() : false;
+	}
+
+	public function getNthRecentTags($num){
+		$sql = "SELECT mg.name, count(*) as num
+				FROM movies.c_tags mg
+				JOIN movies.mtm_movie_tag mmg on mg.tag_id = mmg.tag_id
 				GROUP BY mg.name 
 				ORDER BY num DESC, mg.name 
 				LIMIT $num";
@@ -93,6 +108,36 @@ najnovší úživatelia
 				GROUP BY mg.name, mg.maker_id
 				ORDER BY num DESC, mg.name 
 				LIMIT $num";
+		$q = $this -> db -> query($sql);
+		return $q -> num_rows() ? $q -> result_array() : false;
+	}
+
+	public function getNthRecentActors($num){
+		$sql = "SELECT mg.name, mg.maker_id, count(*) as num
+				FROM movies.makers mg
+				JOIN movies.mtm_movie_maker mmg on mg.maker_id = mmg.maker_id
+				WHERE mmg.role = 'actor'
+				GROUP BY mg.name, mg.maker_id
+				ORDER BY num DESC, mg.name 
+				LIMIT $num";
+		$q = $this -> db -> query($sql);
+		return $q -> num_rows() ? $q -> result_array() : false;
+	}
+
+	public function getNthRecentDirectors($num){
+		$sql = "SELECT mg.name, mg.maker_id, count(*) as num
+				FROM movies.makers mg
+				JOIN movies.mtm_movie_maker mmg on mg.maker_id = mmg.maker_id
+				WHERE mmg.role = 'director'
+				GROUP BY mg.name, mg.maker_id
+				ORDER BY num DESC, mg.name 
+				LIMIT $num";
+		$q = $this -> db -> query($sql);
+		return $q -> num_rows() ? $q -> result_array() : false;
+	}
+
+	public function getNthRecentLoans($num){
+		$sql = "";
 		$q = $this -> db -> query($sql);
 		return $q -> num_rows() ? $q -> result_array() : false;
 	}

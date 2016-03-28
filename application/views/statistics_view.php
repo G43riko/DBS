@@ -1,43 +1,43 @@
 <?php if(!isset($hideHeader))$this -> load -> view('header_view.html'); ?>
-	<h3>Prehľad</h3>
+	<h3><?= word("overview") ?></h3>
 	<div class="row">
 		<div class="col-sm-3" >
-			<h5>Počty</h5>
+			<h5><?= word("counts") ?></h5>
 			<div class="well gScrollable">
 				<table class="table table-striped">
 					<?php
 						foreach($data["number"]["body"] as $key => $val)
-							wrapToTag(wrapToTag($key, "td") . wrapToTag($val, "td"), "tr", TRUE);
+							wrapToTag(wrapToTag($key, "td") . wrapToTag($val, "td"), "tr", 1);
 					?>
 				</table>
 			</div>
 		</div>
 		<div class="col-sm-3">
-			<h5>Najlepšie</h5>
+			<h5><?= word("best") ?></h5>
 			<div class="well gScrollable">
 				<table class="table table-striped">
 			<?php
-				showSimpleMovies($data["movies"]["best"], "rating", movieURL . "detail/");
+				showSimpleMovies($data["movies"]["best"], "rating", movieDetailURL);
 			?>
 				</table>
 			</div>
 		</div>
 		<div class="col-sm-3">
-			<h5>Najdlhšie</h5>
+			<h5><?= word("longest") ?></h5>
 			<div class="well gScrollable">
 				<table class="table table-striped">
 			<?php
-				showSimpleMovies($data["movies"]["longest"], "length", movieURL . "detail/", " min");
+				showSimpleMovies($data["movies"]["longest"], "length", movieDetailURL, " min");
 			?>
 				</table>
 			</div>
 		</div>
 		<div class="col-sm-3">
-			<h5>Najnovšie</h5>
+			<h5><?= word("newest") ?></h5>
 			<div class="well gScrollable">
 				<table class="table table-striped">
 			<?php
-				showSimpleMovies($data["movies"]["newest"], "d_created", movieURL . "detail/");
+				showSimpleMovies($data["movies"]["newest"], "d_created", movieDetailURL);
 			?>
 				</table>
 			</div>
@@ -45,14 +45,14 @@
 	</div>
 	<div class="row">
 		<div class="col-sm-3">
-			<h5>Žánre</h5>
+			<h5><?= word("genres") ?></h5>
 			<div class="well gScrollable">
 				<table class="table table-striped">
 					<thead>
 						<tr>
 							<?php
 								foreach($data["genres"]["head"] as $genre)
-									wrapToTag($genre, "td", TRUE);
+									wrapToTag($genre, "td", 1);
 							?>
 						</tr>
 					</thead>
@@ -60,9 +60,7 @@
 			<?php
 				foreach($data["genres"]["body"] as $genre):
 					$d = makeLink($genre["name"], genreURL . $genre["name"]);
-					$d = wrapToTag($d, "td");
-					$d .= wrapToTag($genre["num"], "td");
-					wrapToTag($d, "tr", TRUE);
+					wrapToTag(wrapToTag($d, "td") . wrapToTag($genre["num"], "td"), "tr", 1);
 				endforeach;
 			?>
 					</tbody>
@@ -70,14 +68,14 @@
 			</div>
 		</div>
 		<div class="col-sm-3">
-			<h5>Roky</h5>
+			<h5><?= word("years") ?></h5>
 			<div class="well gScrollable">
 				<table class="table table-striped">
 					<thead>
 						<tr>
 							<?php
 								foreach($data["years"]["head"] as $year)
-									wrapToTag($year, "td", TRUE);
+									wrapToTag($year, "td", 1);
 							?>
 						</tr>
 					</thead>
@@ -85,9 +83,7 @@
 				<?php
 					foreach($data["years"]["body"] as $year):
 						$d = makeLink($year["name"], yearURL . $year["name"]);
-						$d = wrapToTag($d, "td");
-						$d .= wrapToTag($year["num"], "td");
-						wrapToTag($d, "tr", TRUE);
+						wrapToTag(wrapToTag($d, "td") . wrapToTag($year["num"], "td"), "tr", 1);
 					endforeach;
 				?>
 					</tbody>
@@ -95,14 +91,14 @@
 			</div>
 		</div>
 		<div class="col-sm-3">
-			<h5>Krajny</h5>
+			<h5><?= word("countries") ?></h5>
 			<div class="well gScrollable">
 				<table class="table table-striped">
 					<thead>
 						<tr>
 							<?php
 								foreach($data["countries"]["head"] as $country)
-									wrapToTag($country, "td", TRUE);
+									wrapToTag($country, "td", 1);
 							?>
 						</tr>
 					</thead>
@@ -110,36 +106,82 @@
 				<?php
 					foreach($data["countries"]["body"] as $country):
 						$d = makeLink($country["name"], countryURL . $country["name"]);
-						$d = wrapToTag($d, "td");
-						$d .= wrapToTag($country["num"], "td");
-						wrapToTag($d, "tr", TRUE);
+						wrapToTag(wrapToTag($d, "td") . wrapToTag($country["num"], "td"), "tr", 1);
 					endforeach;
+				?>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<div class="col-sm-3">
+			<h5><?= word("tags") ?></h5>
+			<div class="well gScrollable">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<?php
+								foreach($data["tags"]["head"] as $tag)
+									wrapToTag($tag, "td", 1);
+							?>
+						</tr>
+					</thead>
+					<tbody>
+				<?php
+					foreach($data["tags"]["body"] as $tag):
+						$d = makeLink($tag["name"], tagURL . $tag["name"]);
+						wrapToTag(wrapToTag($d, "td") . wrapToTag($tag["num"], "td"), "tr", 1);
+					endforeach;
+				?>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div id="row">
+		<div class="col-sm-4">
+			<h5><?= word("actors") ?></h5>
+			<div class="well gScrollable">
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<?php
+								foreach($data["actors"]["head"] as $maker)
+									wrapToTag($maker, "td", 1);
+							?>
+						</tr>
+					</thead>
+					<tbody>
+				<?php
+					foreach($data["actors"]["body"] as $maker){
+						$url = makerDetailURL . $maker["maker_id"];
+						$link = makeLink(checkStringLength($maker["name"], 20), $url);
+						wrapToTag(wrapToTag($link, "td") . wrapToTag($maker["num"], "td"), "tr", 1);
+					}
 				?>
 					</tbody>
 				</table>
 
 			</div>
 		</div>
-
-		<div class="col-sm-3">
-			<h5>Tvorcovia</h5>
+		<div class="col-sm-4">
+			<h5><?= word("directors") ?></h5>
 			<div class="well gScrollable">
 				<table class="table table-striped">
 					<thead>
 						<tr>
 							<?php
-								foreach($data["makers"]["head"] as $maker)
-									wrapToTag($maker, "td", TRUE);
+								foreach($data["directors"]["head"] as $maker)
+									wrapToTag($maker, "td", 1);
 							?>
 						</tr>
 					</thead>
 					<tbody>
 				<?php
-					foreach($data["makers"]["body"] as $maker){
-						$url = makerURL . "detail/" . $maker["maker_id"];
+					foreach($data["directors"]["body"] as $maker){
+						$url = makerDetailURL . $maker["maker_id"];
 						$link = makeLink(checkStringLength($maker["name"], 20), $url);
-						echo "<tr>" . wrapToTag($link, "td") . wrapToTag($maker["num"], "td") . "</tr>";
-						}
+						wrapToTag(wrapToTag($link, "td") . wrapToTag($maker["num"], "td"), "tr", 1);
+					}
 				?>
 					</tbody>
 				</table>
