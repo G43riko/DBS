@@ -35,8 +35,8 @@
 		<div class="col-sm-6 well" id="movies_list">
 			<ul class='list-group'>
 				<li class='list-group-item'>
-					<span style="margin-left: 80px;"><?= word("totalPrice")?>: <span id="price">0</span>€<span>
-					<span style="margin-left: 80px;"><?= word("numOfMovies")?>: <span id="number">0</span><span>
+					<span style="margin-left: 40px;"><?= word("totalPrice")?>: <span id="price">0</span>€<span>
+					<span style="margin-left: 40px;"><?= word("numOfMovies")?>: <span id="number">0</span><span>
 					<input type="button" class="btn btn-default" value="<?= word('clearBasket')?>" onclick="clearMovies($(this).parent().parent().parent().parent().parent())">
 				</li>
 			</ul>

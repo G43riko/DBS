@@ -137,7 +137,7 @@
 			</div>
 		</div>
 	</div>
-	<div id="row">
+	<div id="row">	
 		<div class="col-sm-4">
 			<h5><?= word("actors") ?></h5>
 			<div class="well gScrollable">

@@ -99,13 +99,13 @@ class Imdb_model extends CI_Model {
 		***************/
 		$tmp = $subtext -> find("div.originalTitle");
 		if(count($tmp))
-			$result["title"] = trim(explode("(", $tmp[0] -> plaintext)[0]);
+			$result["title"] = html_entity_decode(trim(explode("(", $tmp[0] -> plaintext)[0]));
 		$data = explode("(" . $result["year"] . ")", $subtext -> find("h1")[0] -> plaintext);
 
 		if(!isset($result["title"]))
-			$result["title"] = trim($data[0]);
+			$result["title"] = html_entity_decode(trim($data[0]));
 		else
-			$result["title_sk"] = trim($data[0]);
+			$result["title_sk"] = html_entity_decode(trim($data[0]));
 
 
 		/***************

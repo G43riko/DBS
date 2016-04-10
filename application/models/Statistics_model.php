@@ -35,7 +35,7 @@ najnovší úživatelia
 	}
 
 	private function getNFromBy($num, $from, $by){
-		$sql = "SELECT * FROM $from WHERE replaced_by IS NULL ORDER BY $by DESC LIMIT $num";
+		$sql = "SELECT * FROM $from ORDER BY $by DESC LIMIT $num";
 		$q = $this -> db -> query($sql);
 		return $q -> num_rows() ? $q -> result_array() : false;
 	}
@@ -51,7 +51,6 @@ najnovší úživatelia
 	public function getNNewestMovies($num){
 		$sql = "SELECT movie_id, title, to_char(d_created, 'DD.MM.YYYY') as d_created 
 				FROM movies.movies
-				WHERE replaced_by IS NULL
 				ORDER BY d_created DESC 
 				LIMIT " . $num;
 		$q = $this -> db -> query($sql);
@@ -82,7 +81,7 @@ najnovší úživatelia
 
 	public function getNthRecentYears($num){
 		$sql = "SELECT year as name, count(*) as num
-				FROM movies.movies
+				FROM movies.movies_view
 				GROUP BY year
 				ORDER BY num DESC, name DESC 
 				LIMIT $num";

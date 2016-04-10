@@ -2,30 +2,55 @@
 /*
 	TODO
 
-	- pridať vedlajší panel s podrobnostami do zoznamu pôžičiek
+	+ pridať vedlajší panel/modalove okno s podrobnostami do zoznamu pôžičiek
 	+ vyhladávanie filmou a tvorcou spolu s vedaljším panelom s podrobnostami a tlačítkom add
 	+ pridať k detailu tvorcu tabulku filmou s ROLOU, filmom a rokom kedy sa film natočil
 	- filtrovanie a vyhladávanie v tabulkách
 	+ tabulky spraviť zoraditelne
+	+ umožni mazanie filmou (replaced_by: 0)
 	+ umožniť upravovanie filmou
-	-	ukladať zmeny
+	+	ukladať zmeny
 	- umožniť upravovanie tvorcov
 	-	ukladať zmeny
 	- umožniť pridavanie tvorcov
-	- umožniť pridavanie žánrov
-	- umožniť pridávanie tagov
-	- umožniť pridávanie krajín
+	+ umožniť pridavanie žánrov
+	+ umožniť pridávanie tagov
+	+ umožniť pridávanie krajín
 	+ umožniť hladanie filmou podla tagu, nazvu, sk_nazvu
 	- prioritu herca vo filme
 	- priorita filmoveho žanru
+	- stránkovanie filmou
+	- stránkovanie hercou
+	- images to hint results
+	- vyriešiť logovanie
+	- odstraniť zastaralé filmy
+	- view pre zobrazenie zoznamu hercov 
+	- view pre detailu herca
+	- view pre zobrazenie zoznamu filmou 
+	- view pre detailu filmu
+	- CSFD parser pre dáta ktoré niesu na IMDB
+	- získať prístup k nový filmovým trailerom (RSS)
+	- preview filmov ako avatar + title
+	
+	+ dokončovanie pôžičiek
+	- store posters and avatart localy
 
+	- ak pridá film ide na jeho profil ináč ide na uvodnu oprazovku
+	- všetky vyhladávacie inputy potvrdzovať na enter
+	- nastaviť value v inpute pri hladaní filmu/herca
+	- dokončene pôžičky
+	- ceny filmou
+	- cena objednavky
+	- upraviť počítadlo filmou v košíku
 
 	- GUI uprava pôžičky + uprava v DB
 	+ GUI vytvorenie pôžičky + pridanie do DB
-	- loadnuť data o hercoch pri pridávani filmu
+	+ loadnuť data o hercoch pri pridávani filmu
 	- upraviť zobrazovanie detailu s filmu aj na základe dát s DB aj s dát s Parsera
 	
 	+ show movie and maker detail in modal
+
+	-loadovať dlhé zoznamy postupne	
 
 	- presunut všetko do viewov(defaultne triedenie, pretypovanie)
 	+ všetko spraviť lokalizovatelne
@@ -33,6 +58,40 @@
 	+ rozdelit CSS
 	- rozdelit HTML
 	- rozdelit PHP
+
+
+	DATA
+		movies_model
+			//MOVIES
+			-A-getAllMovies();
+			-updateMovie($movie_id, $data);
+			??-getMovieByImdbId($imdb_id);
+			-A-getMovieById($movie_id);
+			-A-getSearchMovies -> getMoviesByTitle($title);
+			-A-getMoviesByYear($year, $name = FALSE);
+			-A-getMoviesByGenre($genre, $name = FALSE);
+			-A-getMoviesByTag($tag, $name = FALSE);
+			-A-getMoviesByCountry($country, $name = FALSE);
+			-A-getMoviesWithoutCsfd();
+			//MAKERS
+			-A-getAllMakers();
+			-getAllActors();
+			-getAllDirectors();
+			-A-getSearchMakers -> getMakersByName($name);
+			-updateMaker($maker_id, $data);
+			-A-getMakerById($maker_id);
+			-A-getMakersWithoutCsfd();
+			//OTHERS
+			-A-getAllYears();
+			-A-getAllGenres();
+			-A-getAllCountries();
+			-A-getAllTags();
+			//UTILS
+			-addMovieArray($data);
+			-log($text, $type = 0);
+			//UNIVERSAL
+			-A-getFromWhere($from, $where = FALSE);
+			-B-getCountFrom($from, $where = FALSE);
  */
 /**
  * CodeIgniter

@@ -14,7 +14,8 @@ class Makers extends CI_Controller {
 								 "name"			=> word("name"),
 								 "d_birthday" 	=> word("birthday"),
 								 "movies_num"	=> word("workOnMovies"),
-								 "d_created"	=> word("created"));
+								 "d_created"	=> FALSE,//word("created")
+								 );
 	}
 
 	public function index(){

@@ -89,6 +89,11 @@ function makeLoan(){
 function removeMovie(element){
 	removeMovieFromBasket(element.attr("alt"));
 	element.remove();
+
+	e = $(element);
+	var p = $("#price");
+	p.text(Math.round((parseFloat(p.text()) - parseFloat(e.attr("price"))) * 100) / 100);
+
 	var n = $("#number");
 	n.text(parseInt(n.text()) - 1);
 }
@@ -107,46 +112,60 @@ function removeMovieFromBasket(id){
 function loadMoviesFromBasket(){
 	if(sessionStorage.hasOwnProperty("basket")){
 		var basket = JSON.parse(sessionStorage.getItem("basket"));
-		for(i in basket)
-			addMovie($("<div/>").text(basket[i]).attr("alt", i));
+		var sum = 0;
+		for(i in basket){
+			addMovie($("<div/>").text(basket[i][0]).attr("alt", i).attr("price", basket[i][1]), 0);
+			sum += parseFloat(basket[i][1]);
+		}
+		$("#price").text(Math.round(sum * 100) / 100);
 	}
 }
 
 /**
  *pridá film do košíka
  */
-function addMovieToBasket(movie, id){
+function addMovieToBasket(movie, id, price){
 	var basket;
 	if(sessionStorage.hasOwnProperty("basket"))
 		basket = JSON.parse(sessionStorage.getItem("basket"));
 	else
 		basket = {};
 
-	basket[id] = movie;
+	basket[id] = [movie, price];
 
 	sessionStorage.setItem("basket", JSON.stringify(basket));
 }
 
-function addMovie(element){
+function addMovie(element, click){
 	var r = $("<span/>",{css:{position:"absolute", right : "20%"}});
-
-
 	$("<button/>", {css 	: {margin : "-8px"},
 					text 	: "remove",
 					class 	: "btn btn-default",
 					onclick : "removeMovie($(this).parent().parent())"}).appendTo(r);
 
 	var e = $(element);
-	addMovieToBasket(e.text(), e.attr("alt"));	
+	var price = parseFloat(e.attr("price"));
+
+	
+	if(sessionStorage.hasOwnProperty("basket") && sessionStorage.getItem("basket").hasOwnProperty(e.attr("alt")) && click){
+		alert("film " + e.text() + " už je v košiku");
+		return false;
+	}	
+
+	addMovieToBasket(e.text(), e.attr("alt"), price);	
 
 	var li =  $("<li/>",{class 	: "list-group-item basket-item",
 						 alt 	: e.attr("alt"),
+						 price  : price,
 						 html 	: e.text()}).append(r).appendTo($("#movies_list ul"));
 
 	$("#moviesHints").empty();
 	$("#movies_id").val("");
 
-	var n = $("#number");
+	var n = $("#price");
+	n.text(Math.round((parseFloat(n.text()) + price) * 100) / 100);
+
+	n = $("#number");
 	n.text(parseInt(n.text()) + 1);
 }
 
@@ -159,6 +178,8 @@ function clearBasket(){
 
 function clearMovies(el){
 	el.siblings().remove();
+	$("#number").text("0");
+	$("#price").text("0");
 	clearBasket();
 }
 

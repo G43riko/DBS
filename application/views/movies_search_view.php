@@ -23,7 +23,7 @@
 
 			foreach($data[$key] as $row):
 				$v = get_object_vars($row);
-				$line = wrapToTag(makeLink($v["title"], "$link/" . $v["id"], 0, 1), "td");
+				$line = wrapToTag(makeLink($v["title"], "$link" . $v["id"], 0, 1), "td");
 				$line .= wrapToTag(explode(",", $v["description"])[0], "td");
 				$tmp = wrapToTag("<i class='fa fa-refresh fa-spin'></i>", "span", 0, "class='spinner'");
 				$d = "class='btn btn-default btn-large has-spinner spinerable' ";

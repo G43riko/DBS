@@ -18,17 +18,30 @@
 	</td>
 <?php endif; ?>
 						<td valign="top">
+						<?php if(isset($hideHeader)): ?>
 							<ul class="list-group" id="moviesList">
 							<?php
-								foreach($movies as $val){
-									$tmp = explode(":", $val);
-									$d = wrapToTag($tmp[0], "a", 0, " href='" . movieDetailURL . $tmp[1] . "'");
-									//echo $tmp[2] . " - " . $d;
-									$dd = wrapToTag($tmp[2], "span", 0, "class='badge'");
-									wrapToTag($dd . $d, "li", 1, "class='list-group-item'");
-								};
+								foreach($movies as $val):
+									$tmp = explode(":::", $val);
+									$d = wrapToTag($tmp[2], "span", 0, "class='badge'");
+									$d .= wrapToTag($tmp[0], "a", 0, " href='" . movieDetailURL . $tmp[1] . "'");
+									wrapToTag($d, "li", 1, "class='list-group-item'");
+								endforeach;
 							?>
 							</ul>
+						<?php else: ?>
+							<div class="list-group" id="moviesList">
+								<?php
+								foreach($movies as $val):
+									$tmp = explode(":::", $val);
+									if(count($tmp) < 3)
+										continue;
+									$d = wrapToTag($tmp[2], "span", 0, "class='badge'") . $tmp[0];
+									makeLink($d, movieDetailURL . $tmp[1], 1, 0, "class='list-group-item'");
+								endforeach;
+							?>
+							</div>
+						<?php endif; ?>
 						</td>
 					</tr>
 					<tr>

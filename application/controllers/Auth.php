@@ -11,13 +11,13 @@ class Auth extends CI_Controller {
 	}
 
 	function register($page = ""){
-		$w = word("firstName");
+		$w = "meno";
 		$this -> form_validation -> set_rules(strtolower($w), $w, "trim|required");
-		$w = word("secondName");
+		$w = "priezvisko";
 		$this -> form_validation -> set_rules(strtolower($w), $w, "trim|required");
-		$w = word("email");
+		$w = "email";
 		$this -> form_validation -> set_rules(strtolower($w), $w, "trim|required|valid_email");
-		$w = word("pass");
+		$w = "heslo";
 		$this -> form_validation -> set_rules(strtolower($w), $w, "trim|required|min_length[4]");	
 		
 		if($this -> form_validation -> run() && $this -> persons_model -> register())

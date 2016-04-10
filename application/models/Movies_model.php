@@ -11,14 +11,11 @@ class Movies_model extends CI_Model {
 
 	public function getAllMakers(){
 		//SELECT * FROM movies.makers
-		$q = $this -> db -> order_by("movies_num", "desc") -> get("movies.makers_view");
-		return $q -> num_rows() ? $q -> result_array() : false;
+		return $this -> getFromWhere("movies.makers_view");
 	}
 
 	public function getMakersWithoutCsfd(){
-		$sql = "SELECT * FROM movies.makers m WHERE m.csfd_id IS NULL";
-		$q = $this -> db -> query($sql);
-		return $q -> num_rows() ? $q -> result_array() : false;
+		return $this -> getFromWhere("movies.makers", "csfd_id IS NULL");
 	}
 
 	public function getAllActors(){
@@ -28,7 +25,7 @@ class Movies_model extends CI_Model {
 				ON 		mmmm.maker_id = mm.maker_id
 				WHERE	mmmm.role = 'actor'";
 
-		$q = $this -> db -> querry($sql);
+		$q = $this -> db -> query($sql);
 		return $q -> num_rows() ? $q -> result_array() : false;
 	}
 
@@ -44,8 +41,8 @@ class Movies_model extends CI_Model {
 	}
 
 	public function getSearchMakers($key){
-		$q = $this -> db -> like("lower(name)", strtolower(urldecode($key))) -> get("movies.makers_view");
-		return $q -> num_rows() ? $q -> result_array() : false;
+		$key = strtolower(urldecode($key));
+		return $this -> getFromWhere("movies.makers_view", "lower(name) LIKE '%$key%'");
 	}
 
 	public function updateMaker($id, $data){
@@ -84,34 +81,34 @@ class Movies_model extends CI_Model {
 	}
 
 	public function getMakersForUpdate(){
-		$sql = "SELECT * FROM movies.makers m WHERE m.d_birthday IS NULL OR m.avatar IS NULL";
-		$q = $this -> db -> query($sql);
-		return $q -> num_rows() ? $q -> result_array() : false;
+		return $this -> getFromWhere("movies.makers", "d_birthday IS NULL OR avatar IS NULL");
 	}
 
 	public function getMaker($id){
 		if(is_numeric($id)):
 			return $this -> getMakerById($id);
 		else:
-			return $this -> getMakerByName(urldecode($id));
+			//return $this -> getMakerByName(urldecode($id));
+			return $this -> getSearchMakers($id);
 		endif;
 	}
 
+	/*
 	private function getMakerByName($name){
 		//SELECT * FROM movies.makers WHERE name = 'N'
 		$q = $this -> db -> get_where("movies.makers_view", array("lower(name)" => urldecode(strtolower($name))));
 		return $q -> num_rows() ? $q -> result_array() : false;
 	}
+	*/
 
 	private function getMakerByImdbID($id){
-		$q = $this -> db -> get_where("movies.makers_view", array("imdb_id" => $id));
-		return $q -> num_rows() ? $q -> result_array()[0] : false;
+		//SELECT * FROM movies.makers WHERE imdb_id = ID
+		return $this -> getFromWhere("movies.makers_detail_view", "imdb_id = '$id'", TRUE);
 	}
 
 	private function getMakerById($id){
 		//SELECT * FROM movies.makers WHERE maker_id = ID
-		$q = $this -> db ->get_where("movies.makers_view", array("maker_id" => $id));
-		return $q -> num_rows() ? $q -> result_array()[0] : false;
+		return $this -> getFromWhere("movies.makers_detail_view", "maker_id = $id", TRUE);
 	}
 
 	/**************************************
@@ -120,68 +117,7 @@ class Movies_model extends CI_Model {
 
 	public function getAllMovies(){
 		//SELECT * FROM movies.movies
-		$q = $this -> db -> get("movies.movies_view");
-		return $q -> num_rows() ? $q -> result_array() : false;
-	}
-
-	public function createUpdatedMovie($id, $dataNew){
-		$data = $this -> getMovieById($id);
-
-		$movie_id = $this -> db -> query("select nextval('movies.\"seq_movie_id\"')");
-		$movie_id = $movie_id -> result_array()[0]["nextval"];
-
-		//add movie
-		$movie = array("movie_id"	=> $movie_id,
-					   "imdb_id"	=> $data["imdb_id"],
-					   "title"		=> $data["title"],
-					   "rating"		=> floatval($dataNew["rating"]) / 10,
-					   "poster"		=> $data["poster"],
-					   "year"		=> $dataNew["year"],
-					   "csfd_id"	=> $data["csfd_id"],
-					   "d_created"	=> $data["d_created"],
-					   "length"		=> $dataNew["length"],
-					   "title_sk"	=> $data["title_sk"]);
-
-		$this -> db -> insert("movies.movies", $movie);
-		pre_r($dataNew);
-
-		foreach($dataNew["genres"] as $key => $genre_id)
-			$dataNew["genres"][$key] = "($movie_id, $genre_id)";
-		$sql = "INSERT INTO movies.mtm_movie_genre (movie_id, genre_id) 
-				VALUES " . join(", ", $dataNew["genres"]);
-		$this -> db -> query($sql);
-
-
-		foreach($dataNew["countries"] as $key => $country_id)
-			$dataNew["countries"][$key] = "($movie_id, $country_id)";
-		$sql = "INSERT INTO movies.mtm_movie_country (movie_id, country_id) 
-				VALUES " . join(", ", $dataNew["countries"]);
-		$this -> db -> query($sql);
-
-
-		foreach($dataNew["tags"] as $key => $tag_id)
-			$dataNew["tags"][$key] = "($movie_id, $tag_id)";
-		$sql = "INSERT INTO movies.mtm_movie_tag(movie_id, tag_id) 
-				VALUES " . join(", ", $dataNew["tags"]);
-		$this -> db -> query($sql);
-
-
-		foreach($dataNew["actors"] as $key => $maker_id)
-			$dataNew["actors"][$key] = "($movie_id, $maker_id)";
-		$sql = "INSERT INTO movies.mtm_movie_maker (movie_id, maker_id) 
-				VALUES " . join(", ", $dataNew["actors"]);
-		$this -> db -> query($sql);
-
-		foreach($dataNew["director"] as $key => $maker_id)
-			$dataNew["director"][$key] = "($movie_id, $maker_id, 'director')";
-		$sql = "INSERT INTO movies.mtm_movie_maker (movie_id, maker_id, role) 
-				VALUES " . join(", ", $dataNew["director"]);
-		$this -> db -> query($sql);
-
-
-		$this -> log("Film s id: $id je pripravený na aktualizáciu s id: $movie_id ", 1);
-
-		return $movie_id;
+		return $this -> getFromWhere("movies.movies_view");
 	}
 
 	public function updateMovie($id, $data){
@@ -192,11 +128,18 @@ class Movies_model extends CI_Model {
 		if(!isset($id) || is_null($id) || empty($id) || !count($data))
 			return false;
 
+		/*
 		if(isset($data["csfd_id"]))
 			$query[] = "csfd_id = " . $data["csfd_id"];
 
 		if(isset($data["replaced_by"]))
 			$query[] = "replaced_by = " . $data["replaced_by"];
+		*/
+		foreach($data as $key => $val)
+			if($key == "rating")
+				$query[] = "$key = " . (floatval($val) / 10);
+			else
+				$query[] = "$key = " . $data[$key];	
 
 		$sql .= join(", ", $query);
 		$sql .= " WHERE movie_id = $id";
@@ -206,39 +149,40 @@ class Movies_model extends CI_Model {
 		$this -> log("Film s id: $id sa aktualizoval", 1);
 		$this -> db -> query($sql);
 	}
-
 	public function getMoviesWithoutCsfd(){
-		$sql = "SELECT * FROM movies.movies_view m WHERE m.csfd_id IS NULL";
-		$q = $this -> db -> query($sql);
-		return $q -> num_rows() ? $q -> result_array() : false;
+		return $this -> getFromWhere("movies.movies_view", "csfd_id IS NULL");
+	}
+
+	public function deleteMovie($id){
+		$this -> db -> query("SELECT movies.deletemovie($id)");
 	}
 
 	public function getMovieByImdbId($id){
-		$q = $this -> db ->get_where("movies.movies", array("imdb_id" => $id));
-		return $q -> num_rows() ? $q -> result_array() : false;
+		return $this -> getFromWhere("movies.movies", "imdb_id = '$id'");
 	}
 
 	public function getSearchMovies($name){
 		$name = strtolower(urldecode($name));
 
 		$q = $this -> db -> like("lower(title)", $name)
-						 -> or_like("lower(title_sk)", $name) 
-						 -> get("movies.movies_view");
+						 //-> or_like("lower(title_sk)", $name) 
+						 -> limit(8)
+						 -> from("movies.movies")
+						 -> join('movies.c_prices', 'movies.c_prices.price_id = movies.movies.price_id')
+						 -> get();
+
 		return $q -> num_rows() ? $q -> result_array() : false;
 	}
 
 	public function getMoviesByYear($year, $name = ""){
-		$q = $this -> db -> where("year", $year);
-
+		$cond = "year = $year";
 		if(!empty($name))
-			$q = $q -> like("lower(title)", urldecode(strtolower($name)));
-
-		$q = $q -> get("movies.movies_view");
-
-		return $q -> num_rows() ? $q -> result_array() : false;
+			$cond .= " AND lower(title) LIKE '%" . urldecode(strtolower($name)) . "%'";
+		return $this -> getFromWhere("movies.movies_view", $cond);
 	}
 
-	public function getMoviesByGenre($genre, $name = ""){
+
+	public function getMoviesByGenre($genre, $name = "", $posters = 0){
 		$genre = urldecode(strtolower($genre));
 		$name  = urldecode(strtolower($name));
 		$sql = "SELECT mm.*
@@ -301,8 +245,7 @@ class Movies_model extends CI_Model {
 
 	public function getMovieById($id){
 		//SELECT * FROM movies.moveis WHERE movie_id = ID
-		$q = $this -> db -> get_where("movies.movies_view", array("movie_id" => $id));
-		return $q -> num_rows() ? $q -> result_array()[0] : false;
+		return $this -> getFromWhere("movies.movies_detail_view", "movie_id = $id", TRUE);
 	}
 
 	/**************************************
@@ -315,7 +258,7 @@ class Movies_model extends CI_Model {
 
 	public function getAllYears(){
 		$sql = "SELECT year, count(*) AS movies 
-				FROM movies.movies 
+				FROM movies.movies_detail_view
 				GROUP BY year 
 				ORDER BY movies DESC, year DESC";
 		$q = $this -> db -> query($sql);
@@ -323,18 +266,39 @@ class Movies_model extends CI_Model {
 	}
 
 	public function getAllGenres(){
-		$q = $this -> db -> order_by("movies", "desc") -> get("movies.genres_view");
-		return $q -> num_rows() ? $q -> result_array() : false;
+		return $this -> getFromWhere("movies.genres_view");
+	}
+
+	public function getGenreById($id){
+		return $this -> getFromWhere("movies.genres_view", "genre_id = $id", 1);
+	}
+
+	public function updateGenre($id, $data){
+		$this -> db -> where("genre_id", $id) -> update("movies.c_genres", $data);
 	}
 
 	public function getAllCountries(){
-		$q = $this -> db -> order_by("movies", "desc") -> get("movies.countries_view");
-		return $q -> num_rows() ? $q -> result_array() : false;
+		return $this -> getFromWhere("movies.countries_view");
+	}
+
+	public function getCountryById($id){
+		return $this -> getFromWhere("movies.countries_view", "country_id = $id", 1);
+	}
+
+	public function updateCountry($id, $data){
+		$this -> db -> where("country_id", $id) -> update("movies.c_countries", $data);
 	}
 
 	public function getAllTags(){
-		$q = $this -> db -> get("movies.tags_view");
-		return $q -> num_rows() ? $q -> result_array() : false;
+		return $this -> getFromWhere("movies.tags_view");
+	}
+
+	public function getTagById($id){
+		return $this -> getFromWhere("movies.tags_view", "tag_id = $id", 1);
+	}
+
+	public function updateTag($id, $data){
+		$this -> db -> where("tag_id", $id) -> update("movies.c_tags", $data);
 	}
 
 	/**************************************
@@ -357,7 +321,8 @@ class Movies_model extends CI_Model {
 		$result = $this -> getMovieByImdbId($data["imdb_id"]);
 
 		if(!$force && $result)
-			die("film " . $data["title"] . " (". $data["year"]. ") už existuje");
+			return;
+			//die("film " . $data["title"] . " (". $data["year"]. ") už existuje");
 
 		$movie_id = NULL;
 		//pridá film
@@ -383,11 +348,13 @@ class Movies_model extends CI_Model {
 				$arr["poster"] = $data["poster"];
 			if(isset($data["title_sk"]))
 				$arr["title_sk"] = $data["title_sk"];
+			if(isset($data["csfd_id"]))
+				$arr["csfd_id"] = $data["csfd_id"];
 			if(isset($data["contentRating"]))
 				$arr["content"] = $data["contentRating"];
 
 			$this -> db -> insert("movies.movies", $arr);
-			$this -> log("Pridal sa film " . $arr["title"], 1);
+			$this -> log("Pridal sa film " . $arr["title"] . "s ide: " . $this -> db -> insert_id(), 1);
 		}
 		else
 			$movie_id = $result["movie_id"];
@@ -420,9 +387,10 @@ class Movies_model extends CI_Model {
 			if(!$act):
 				$res = $this -> imdb_model -> parseMaker($actor["imdb_id"]);
 
-				if(isset($res["birthday"]))
+				
+				if(isset($res["birthday"]) && !strpos($res["birthday"], "-0") && !strpos($res["birthday"], "0-"))
 					$actor["d_birthday"] = $res["birthday"];
-
+				
 				if(isset($res["avatar"]))
 					$actor["avatar"] = $res["avatar"];
 
@@ -448,17 +416,20 @@ class Movies_model extends CI_Model {
 		//pridá k filmu genre
 
 		$result = $this -> getDataIn("genre_id", "movies.c_genres", "name", $data["genres"]);
-		$this -> addDataToMovie($result -> result_array(), "mtm_movie_genre", "genre_id", $movie_id);
+		if($result)
+			$this -> addDataToMovie($result -> result_array(), "mtm_movie_genre", "genre_id", $movie_id);
 		
 		//pridá k filmu krajny
 
 		$result = $this -> getDataIn("country_id", "movies.c_countries", "name", $data["countries"]);
-		$this -> addDataToMovie($result -> result_array(), "mtm_movie_country", "country_id", $movie_id);
+		if($result)
+			$this -> addDataToMovie($result -> result_array(), "mtm_movie_country", "country_id", $movie_id);
 
 		//pridá k filmu tagy
 		
 		$result = $this -> getDataIn("tag_id", "movies.c_tags", "name", $data["tags"]);
-		$this -> addDataToMovie($result -> result_array(), "mtm_movie_tag", "tag_id", $movie_id);
+		if($result)
+			$this -> addDataToMovie($result -> result_array(), "mtm_movie_tag", "tag_id", $movie_id);
 
 		//pridá k filmu hercov
 		
@@ -481,6 +452,8 @@ class Movies_model extends CI_Model {
 
 		//ukončí transakciu
 		$this -> db -> trans_complete();
+
+		return $movie_id;
 	}
 
 	private function addOtherData($data, $key, $table, $table_id){
@@ -510,6 +483,8 @@ class Movies_model extends CI_Model {
 	}
 
 	public function getDataIn($select, $from, $where, $in){
+		if(empty($in))
+			return false;	
 		$sql = "SELECT $select
 				FROM   $from 
 				WHERE  $where IN (" . join(", ", $in). ")";
@@ -517,9 +492,13 @@ class Movies_model extends CI_Model {
 		return $this -> db -> query($sql);
 	}
 
-	public function getFromWhere($from, $where){
-		$sql = "SELECT * FROM $from WHERE $where";
-		$q = $this -> db -> query($sql);
+	public function getFromWhere($from, $where = FALSE, $onlyOne = FALSE){
+		$q = ($where ? $this -> db -> where($where) : $this -> db);
+		$q = $q -> get($from);
+
+		if($onlyOne)
+			return $q -> num_rows() ? $q -> result_array()[0] : false;
+		
 		return $q -> num_rows() ? $q -> result_array() : false;
 	}
 
@@ -564,4 +543,129 @@ class Movies_model extends CI_Model {
 		return $q -> num_rows() ? $q -> result_array() : false;
 	}
 	*/
+
+	public function createNewMovie($data){
+		$movie_id = $this -> db -> query("select nextval('movies.\"seq_movie_id\"')");
+		$movie_id = $movie_id -> result_array()[0]["nextval"];
+
+
+		//add movie
+		$movie = array("movie_id"	=> $movie_id,
+					   "imdb_id"	=> NULL,
+					   "title"		=> $data["title"],
+					   "rating"		=> floatval($data["rating"]) / 10,
+					   "poster"		=> NULL,
+					   "year"		=> $data["year"],
+					   "csfd_id"	=> NULL,
+					   "length"		=> $data["length"],
+					   "title_sk"	=> NULL);
+
+		$this -> db -> insert("movies.movies", $movie);
+		pre_r($data);
+
+		if(isset($data["genres"])){
+			foreach($data["genres"] as $key => $genre_id)
+				$data["genres"][$key] = "($movie_id, $genre_id)";
+			$sql = "INSERT INTO movies.mtm_movie_genre (movie_id, genre_id) 
+					VALUES " . join(", ", $data["genres"]);
+			$this -> db -> query($sql);
+		}
+
+		if(isset($data["countries"])){
+			foreach($data["countries"] as $key => $country_id)
+				$data["countries"][$key] = "($movie_id, $country_id)";
+			$sql = "INSERT INTO movies.mtm_movie_country (movie_id, country_id) 
+					VALUES " . join(", ", $data["countries"]);
+			$this -> db -> query($sql);
+		}
+
+		if(isset($data["tags"])){
+			foreach($data["tags"] as $key => $tag_id)
+				$data["tags"][$key] = "($movie_id, $tag_id)";
+			$sql = "INSERT INTO movies.mtm_movie_tag(movie_id, tag_id) 
+					VALUES " . join(", ", $data["tags"]);
+			$this -> db -> query($sql);
+		}
+
+		if(isset($data["actors"])){
+			foreach($data["actors"] as $key => $maker_id)
+				$data["actors"][$key] = "($movie_id, $maker_id)";
+			$sql = "INSERT INTO movies.mtm_movie_maker (movie_id, maker_id) 
+					VALUES " . join(", ", $data["actors"]);
+			$this -> db -> query($sql);
+		}
+
+		if(isset($data["director"])){
+			foreach($data["director"] as $key => $maker_id)
+				$data["director"][$key] = "($movie_id, $maker_id, 'director')";
+			$sql = "INSERT INTO movies.mtm_movie_maker (movie_id, maker_id, role) 
+					VALUES " . join(", ", $data["director"]);
+			$this -> db -> query($sql);
+		}
+
+
+		$this -> log("Pridal sa nový film s id: $movie_id ", 1);
+
+		return $movie_id;
+	}
+
+	public function createUpdatedMovie($id, $dataNew){
+		$data = $this -> getMovieById($id);
+
+		$movie_id = $this -> db -> query("select nextval('movies.\"seq_movie_id\"')");
+		$movie_id = $movie_id -> result_array()[0]["nextval"];
+
+		//add movie
+		$movie = array("movie_id"	=> $movie_id,
+					   "imdb_id"	=> $data["imdb_id"],
+					   "title"		=> $dataNew["title"],
+					   "rating"		=> floatval($dataNew["rating"]) / 10,
+					   "poster"		=> $data["poster"],
+					   "year"		=> $dataNew["year"],
+					   "csfd_id"	=> $data["csfd_id"],
+					   "d_created"	=> $data["d_created"],
+					   "length"		=> $dataNew["length"],
+					   "title_sk"	=> $data["title_sk"]);
+
+		$this -> db -> insert("movies.movies", $movie);
+		pre_r($dataNew);
+
+		foreach($dataNew["genres"] as $key => $genre_id)
+			$dataNew["genres"][$key] = "($movie_id, $genre_id)";
+		$sql = "INSERT INTO movies.mtm_movie_genre (movie_id, genre_id) 
+				VALUES " . join(", ", $dataNew["genres"]);
+		$this -> db -> query($sql);
+
+
+		foreach($dataNew["countries"] as $key => $country_id)
+			$dataNew["countries"][$key] = "($movie_id, $country_id)";
+		$sql = "INSERT INTO movies.mtm_movie_country (movie_id, country_id) 
+				VALUES " . join(", ", $dataNew["countries"]);
+		$this -> db -> query($sql);
+
+
+		foreach($dataNew["tags"] as $key => $tag_id)
+			$dataNew["tags"][$key] = "($movie_id, $tag_id)";
+		$sql = "INSERT INTO movies.mtm_movie_tag(movie_id, tag_id) 
+				VALUES " . join(", ", $dataNew["tags"]);
+		$this -> db -> query($sql);
+
+
+		foreach($dataNew["actors"] as $key => $maker_id)
+			$dataNew["actors"][$key] = "($movie_id, $maker_id)";
+		$sql = "INSERT INTO movies.mtm_movie_maker (movie_id, maker_id) 
+				VALUES " . join(", ", $dataNew["actors"]);
+		$this -> db -> query($sql);
+
+		foreach($dataNew["director"] as $key => $maker_id)
+			$dataNew["director"][$key] = "($movie_id, $maker_id, 'director')";
+		$sql = "INSERT INTO movies.mtm_movie_maker (movie_id, maker_id, role) 
+				VALUES " . join(", ", $dataNew["director"]);
+		$this -> db -> query($sql);
+
+
+		$this -> log("Film s id: $id je pripravený na aktualizáciu s id: $movie_id ", 1);
+
+		return $movie_id;
+	}
 }

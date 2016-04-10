@@ -1,7 +1,12 @@
 <?php if(!isset($hideHeader))$this -> load -> view('header_view.html'); ?>
 	<h3><?= word("movies") ?></h3>
-	<a href="<?=movieURL?>searchIMDB"><?= word("addMovie")?></a>|
+	<?php if(is_login()): ?>
+		<a href="<?=movieURL?>searchIMDB"><?= word("addMovie")?></a> |
+		<a href="<?=movieEditURL?>"><?= word("createMovie")?></a> |
+	<?php endif; ?>
+	<a href="<?=movieURL?>posters"><?= word("showPosters")?></a> |
 	<label for="movie_key"><?= word("searchMovie") ?>:</label>
+	
 	<input 	type="text" 
 			class="form-control-input" 
 			placeholder="<?= word("search")?>" 

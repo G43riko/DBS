@@ -8,7 +8,7 @@
 		<form method="post" action="<?= movieURL ?>updateMovie">
 			<div class="modal-header">
 				<h1>
-					<span style="position: relative; top: 5px;"><?= (isset($title_sk) ? $title_sk : $title) ?></span>
+  					<input type="text" class="form-control input-lg" style="width:200px; display: inline;" value="<?= (isset($title_sk) ? $title_sk : $title) ?>" name="title">
 					<?= "<input style='width:100px; display: inline;' min='1800' max='2020' " .
 						"type='number' class='form-control input-lg' name='year' value='" . $year . "'>" 
 					?>
@@ -104,10 +104,10 @@
 			<input type="hidden" name="movie_id" value="<?= $movie_id ?>">
 			<?php
 				$class = 'class="btn btn-default"';
-
-				makeLink("<button $class>IMDB</button>", imdbMovieURL . $imdb_id, 1, 1);
+				if($movie_id)
+					makeLink("<input type='button' value='IMDB' $class>", imdbMovieURL . $imdb_id, 1, 1);
 				if(isset($csfd_id))
-					makeLink("<button $class>CSFD</button>", csfdMovieURL . $csfd_id, 1, 1);
+					makeLink("<input type='button' value='CSFD' $class>", csfdMovieURL . $csfd_id, 1, 1);
 				echo "<input type='submit' value='Dokončiť' $class";
 			?>
 			</div>

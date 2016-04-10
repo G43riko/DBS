@@ -1,6 +1,9 @@
 <?php $this -> load -> view('header_view.html'); ?>
 	<h3><?= word("loans") ?></h3>
-	<a href="<?=loanURL?>add"><?= word("addLoan")?></a>
+	<a href="<?=loanURL?>add"><?= word("addLoan")?></a> |
+		<label class="checkbox-inline">
+			<input type="checkbox" onchange="$('.returned').toggleClass('hidden')">zobraziť všetky pôžičky
+		</label>
 	<table class="table table-striped sortable">
 		<thead>
 			<tr>
@@ -11,13 +14,12 @@
 				?>
 				<th>Detail</th>
 			</tr>
-
 		</thead>
 		</tbody>
 			<?php
 				if($loans)
 					foreach($loans as $loan):
-						echo "<tr>";
+						echo "<tr " . ($loan["d_returned"] ? "class='returned hidden'" : "") .">";
 						foreach($data as $key => $value):
 							if($value)
 								if($key == "d_returned")
@@ -25,8 +27,8 @@
 								else
 									wrapToTag($loan[$key], "td", 1);
 						endforeach;
-						$attr  = "onclick=loadLoan('" . $loan["loan_id"] . "') ";
-						$attr .= "data-toggle='modal' data-target='#detailModal'";
+						$attr  = "onclick=loadLoan('" . $loan["loan_id"] . "')";
+						$attr .= " data-toggle='modal' data-target='#detailModal' class='btn btn-default'";
 						wrapToTag(wrapToTag("detail", "button", 0,  $attr), "td", 1);
 						echo "</tr>";
 					endforeach;

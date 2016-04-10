@@ -56,6 +56,7 @@ class Loans extends CI_Controller {
 	}
 
 	public function finish($id){
-
+		$this -> loan_model -> finishLoan($id);
+		redirect("/loans");
 	}
 }

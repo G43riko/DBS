@@ -32,8 +32,7 @@ class Csfd_model extends CI_Model {
 
 	public function searchMovie($name, $year = 0, $director = 0){
 		include_once("simple_html_dom.php");
-		$name = str_replace(" ", "+", urldecode($name));
-		$html = file_get_html("http://www.csfd.cz/hledat/?q=$name");
+		$html = file_get_html("http://127.0.0.1/movies/movies/decode2/" . $name);
 
 
 		$result = array();
@@ -72,6 +71,21 @@ class Csfd_model extends CI_Model {
 			}
 			$result[] = $movieResult;
 		endforeach;
+
+		return $result;
+	}
+
+	public function getMovieInfo($id){
+		include_once("simple_html_dom.php");
+		$html = file_get_html("http://127.0.0.1/movies/movies/decode/". $id);
+
+		$result = array();
+
+		//IMDB_ID
+
+		$imdb_id = $html -> find("#share .links a[title='profil na IMDb.com']");
+		if(count($imdb_id))
+			$result["imdb_id"] = explode("/", $imdb_id[0])[4];
 
 		return $result;
 	}

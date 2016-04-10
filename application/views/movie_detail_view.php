@@ -34,8 +34,10 @@
 				makeLink("<button $class>IMDB</button>", imdbMovieURL . $imdb_id, 1, 1);
 				if(isset($csfd_id))
 					makeLink("<button $class>CSFD</button>", csfdMovieURL . $csfd_id, 1, 1);
-				if(isset($movie_id) && is_login())
+				if(isset($movie_id) && is_login()){
 					makeLink(wrapToTag("upraviť", "button", 0, $class), movieEditURL . $movie_id, 1, 0);
+					wrapToTag("Vymazať", "button", 1, "$class onclick=\"window.location='/movies/movies/delete/$movie_id/'+prompt('Zadaj id filmu')\"");
+				}
 			?>
 		</div>
 	</div>

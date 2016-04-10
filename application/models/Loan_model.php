@@ -31,4 +31,7 @@ class Loan_model extends CI_Model {
 		$q = $this -> db -> get_where("movies.loans_view", array("loan_id" => $id));
 		return $q -> num_rows() ? $q -> result_array()[0] : false;
 	}
+	public function finishLoan($id){
+		$q = $this -> db -> where("loan_id", $id) -> update("movies.loans", array("d_returned" => "now()"));
+	}
 }

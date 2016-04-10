@@ -75,3 +75,9 @@ $route['tags/(:any)/(:any)'] = 'others/tags/$1/$2';
 $route['years/(:any)/(:any)'] = 'others/years/$1/$2';
 $route['genres/(:any)/(:any)'] = 'others/genres/$1/$2';
 $route['countries/(:any)/(:any)'] = 'others/countries/$1/$2';
+
+$route['tags/(:any)/(:any)/(:any)'] = 'others/tags/$1/$2/$3';
+$route['years/(:any)/(:any)/(:any)'] = 'others/years/$1/$2/$3';
+$route['genres/(:any)/(:any)/(:any)'] = 'others/genres/$1/$2/$3';
+$route['countries/(:any)/(:any)/(:any)'] = 'others/countries/$1/$2/$3';
+

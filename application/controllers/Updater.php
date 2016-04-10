@@ -16,40 +16,25 @@ class Updater extends CI_Controller {
 
 	public function statistics(){
 		$this -> load -> model("movies_model");
-		/*
-			filmy 	bez SK názvu
-			filmy 	bez CSFD
-			filmy 	bez hercov
-			filmy 	bez roku
-			filmy 	bez zanrov
-			filmy 	bez krajin
-			filmy 	bez tagov
-			herci 	bez filmou
-			herci 	bez avatara
-			herci 	bez narodenia
-			herci 	bez CSFD
-			tagi  	bez SK názvu
-			krajny 	bez SK názvu
-			žánre 	bez SK názvu
-		*/
 		$arr = array();
 
 		$model = $this -> movies_model;
 
-		$arr["filmyBezSK"] 			= $model -> getCountFromWhere("movies.movies_view", 	"title_sk IS NULL");
+		$arr["filmyBezSK"] 			= $model -> getCountFromWhere("movies.movies", 	"title_sk IS NULL");
 		$arr["filmyBezCSFD"] 		= $model -> getCountFromWhere("movies.movies_view", 	"csfd_id IS NULL");
-		$arr["filmyBezHercov"] 		= $model -> getCountFromWhere("movies.movies_view", 	"actors IS NULL");
+		$arr["filmyBezHercov"] 		= $model -> getCountFromWhere("movies.movies_detail_view", 	"actors IS NULL");
 		$arr["filmyBezRezisera"]	= $model -> getCountFromWhere("movies.movies_view", 	"director IS NULL");
 		$arr["filmyBezHodnotenia"]	= $model -> getCountFromWhere("movies.movies_view", 	"rating IS NULL");
-		$arr["filmyBezPostera"]		= $model -> getCountFromWhere("movies.movies_view", 	"poster IS NULL");
+		$arr["filmyBezPostera"]		= $model -> getCountFromWhere("movies.movies", 	"poster IS NULL");
 		$arr["filmyBezDlzky"]		= $model -> getCountFromWhere("movies.movies_view", 	"length IS NULL");
-		$arr["filmyBezRoku"] 		= $model -> getCountFromWhere("movies.movies_view", 	"year IS NULL");
+		$arr["filmyBezRoku"] 		= $model -> getCountFromWhere("movies.movies", 	"year IS NULL");
 		$arr["filmyBezZanrov"] 		= $model -> getCountFromWhere("movies.movies_view", 	"genres IS NULL");
-		$arr["filmyBezKrajin"] 		= $model -> getCountFromWhere("movies.movies_view", 	"countries IS NULL");
-		$arr["herciBezAvatara"] 	= $model -> getCountFromWhere("movies.makers_view", 	"avatar IS NULL");
-		$arr["herciBezFilmov"] 		= $model -> getCountFromWhere("movies.makers_view", 	"movies IS NULL");
+		$arr["filmyBezVeku"] 		= $model -> getCountFromWhere("movies.movies", 			"content IS NULL");
+		$arr["filmyBezKrajin"] 		= $model -> getCountFromWhere("movies.movies_detail_view", 	"countries IS NULL");
+		$arr["herciBezAvatara"] 	= $model -> getCountFromWhere("movies.makers", 	"avatar IS NULL");
+		//$arr["herciBezFilmov"] 		= $model -> getCountFromWhere("movies.makers_detail_view", 	"movies IS NULL");
 		$arr["herciBezNarodenia"]	= $model -> getCountFromWhere("movies.makers_view", 	"d_birthday IS NULL");
-		$arr["herciBezCSFD"] 		= $model -> getCountFromWhere("movies.makers_view", 	"csfd_id IS NULL");
+		$arr["herciBezCSFD"] 		= $model -> getCountFromWhere("movies.makers", 	"csfd_id IS NULL");
 		$arr["tagiBezSK"] 			= $model -> getCountFromWhere("movies.tags_view", 	 	"name_sk IS NULL");
 		$arr["tagiBezFilmov"]		= $model -> getCountFromWhere("movies.tags_view", 	 	"movies = 0");
 		$arr["zanreBezSK"] 			= $model -> getCountFromWhere("movies.genres_view", 	"name_sk IS NULL");
@@ -69,13 +54,11 @@ class Updater extends CI_Controller {
 		$data = $this -> movies_model -> getMoviesWithoutCsfd();
 		$num = count($data);
 		for($i=0 ; $i < $num && $i < $limit ; $i++){
-			//pre_r($data[$i]);
 			$movies = $this -> csfd_model -> searchMovie(convert_accented_characters($data[$i]["title"]));
 
 			$arr = array();
 			$zhoda = 0;
 			foreach($movies as $actMovie){
-				//pre_r($actMovie);
 				if(isset($actMovie["year"]) && 
 				   intval($actMovie["year"]) == intval($data[$i]["year"]) &&
 				   isset($actMovie["director"]) &&

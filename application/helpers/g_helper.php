@@ -12,7 +12,9 @@
 	define("tagURL", 			"/movies/tags/");
 	define("loginURL", 			"/movies/login/");
 	define("regURL", 			"/movies/register/");
-	define("logoutURL", 		"/movies/logout/");	
+	define("logoutURL", 		"/movies/logout/");
+	define("otherURL", 			"/movies/others/");
+	define("othersEditURL", 	"/movies/others/edit/");
 
 	define("imdbMovieURL", 		"http://www.imdb.com/title/");
 	define("imdbMakerURL", 		"http://www.imdb.com/name/");
@@ -60,10 +62,12 @@
 		$dictionary["count"]["sk"]			= "Počet";
 		$dictionary["counts"]["sk"]			= "Počty";
 		$dictionary["created"]["sk"]		= "Vytvorené";
+		$dictionary["createMovie"]["sk"]	= "Vytvoriť film";
 		$dictionary["director"]["sk"]		= "Režisér";
 		$dictionary["directors"]["sk"]		= "Režiséry";
 		$dictionary["days"]["sk"]			= "Dní";
 		$dictionary["email"]["sk"] 			= "Email";
+		$dictionary["edit"]["sk"]			= "Upraviť";
 		$dictionary["enterMovies"]["sk"]	= "Zadaj názov filmu";
 		$dictionary["enter"]["sk"]			= "Vlož";
 		$dictionary["exact"]["sk"]			= "Presná zhoda";
@@ -98,11 +102,13 @@
 		$dictionary["register"]["sk"] 		= "Registrovať";
 		$dictionary["remove"]["sk"]			= "Odstrániť";
 		$dictionary["returned"]["sk"]		= "Vrátené";
+		$dictionary["save"]["sk"]			= "Uložiť";
 		$dictionary["searchMaker"]["sk"]	= "Hladať tvorcu";
 		$dictionary["searchMovie"]["sk"]	= "Hladať film";
 		$dictionary["searchMovies"]["sk"]	= "Vyhladávanie filmou";
 		$dictionary["search"]["sk"]			= "Hľadať";
 		$dictionary["secondName"]["sk"] 	= "Priezvisko";
+		$dictionary["showPosters"]["sk"] 	= "Zobraziť postery";
 		$dictionary["substring"]["sk"]		= "Čiastočná zoda";
 		$dictionary["tag"]["sk"] 			= "Tag";
 		$dictionary["tags"]["sk"] 			= "Tagy";
@@ -155,7 +161,7 @@
 			if($recursive && is_array($data[$i]))
 				$data[$i] = quotteArray($data[$i]);
 			else
-				$data[$i] = $actor = "'" . trim($data[$i]) . "'";
+				$data[$i] = $actor = "'" . str_replace("'", "\"", trim($data[$i])) . "'";
 		return $data;
 	}
 
@@ -176,13 +182,21 @@
 	}
 
 	function getImage($url){
-		if(is_null($url) || empty($url))
+		if(is_null($url) || empty($url) || !is_connected())
+			return false;
+			$contents = file_get_contents($url);
+			$base64   = base64_encode($contents);
+			$ext = explode(".", $url)[1];
+			return ('data: image/' . $ext . ' ;base64,' . $base64);
+	}
+
+	function is_connected(){
+		$connected = @fsockopen("www.google.com", 80); 
+		if (!$connected)
 			return false;
 
-		$contents = file_get_contents($url);
-		$base64   = base64_encode($contents);
-		$ext = explode(".", $url)[1];
-		return ('data: image/' . $ext . ' ;base64,' . $base64);
+		fclose($connected);
+	    return true;
 	}
 
 	function makeLink($text, $link, $show = FALSE, $blank = FALSE, $attr = ""){
@@ -196,16 +210,18 @@
 		if(is_null($key)){
 			$data = explode(", ", $data);
 			foreach($data as $key => $val){
-				$tmp = explode(":", $val);
-				$data[$key] = wrapToTag($tmp[0], "a", false, "href='" . $path . $tmp[1] . "'");
+				$tmp = explode(":::", $val);
+				if(isset($tmp[0]) && isset($tmp[1]))
+					$data[$key] = wrapToTag($tmp[0], "a", false, "href='" . $path . $tmp[1] . "'");
 			}
 			return join($delimiter, $data);
 		}
 		else{
 			$data[$key] = explode(", ", $data[$key]);
 			foreach($data[$key] as $key => $val){
-				$tmp = explode(":", $val);
-				$data[$key][$key] = wrapToTag($tmp[0], "a", false, "href='" . $path . $tmp[1] . "'");
+				$tmp = explode(":::", $val);
+				if(isset($tmp[0]) && isset($tmp[1]))
+					$data[$key][$key] = wrapToTag($tmp[0], "a", false, "href='" . $path . $tmp[1] . "'");
 			}
 			return join($delimiter, $data[$key]);
 		}
@@ -239,27 +255,24 @@
 	}
 
 	function prepareLocalData($data, $columns, $isArray = true){
-		if($isArray)
+		if($isArray){
 			foreach($data as $key => $movie)
 				foreach($columns as $column => $url)
-					if($column == "year")
-						$data[$key][$column] = makeLink($data[$key]["year"], $url . $data[$key][$column]);
-					else
-						$data[$key][$column] = prepareData($data[$key][$column], $url);
-		
+					if(isset($data[$key][$column])){
+						if($column == "year")
+							$data[$key][$column] = makeLink($data[$key][$column], $url . $data[$key][$column]);
+						else{
+							$data[$key][$column] = prepareData($data[$key][$column], $url);
+						}
+					}
+		}
 		else
 			foreach($columns as $column => $url)
-				if($column == "year")
-					$data[$column] = makeLink($data["year"], $url . $data[$column]);
-				else
-					$data[$column] = prepareData($data[$column], $url);
-		
+				if(isset($data[$column])){
+					if($column == "year")
+						$data[$column] = makeLink($data[$column], $url . $data[$column]);
+					else
+						$data[$column] = prepareData($data[$column], $url);
+				}
 		return $data;
 	}
-	
-	/*
-	function echoIf($val, $str = ""){
-		if(isset($val))
-			echo empty($str) ? $val : $str;
-	}
-	*/
