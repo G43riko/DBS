@@ -77,6 +77,168 @@ class Movies extends CI_Controller {
 														  "link"	=> imdbMovieURL));
 	}
 
+	private function genArray($title, $type, $fix){
+		return array("query" => array(
+				$type => array(
+					$title => $fix . $_REQUEST["title"] . $fix
+				)
+			)
+		);
+	}
+
+	public function qsearch($hideView = 0){
+		if(!$hideView){
+			$data = $this -> movies_model -> getMoviesDatas();
+			$this -> load -> view("movies_es_view", $data);
+		}
+		else{
+			$or = array();
+			$fix = "*";
+			$type = "wildcard";
+			if($_REQUEST["only_prefix"]){
+				$fix = "";
+				$type = "prefix";
+			}
+			if($_REQUEST["search_title"])
+				$or[] = $this -> genArray("title", $type, $fix);
+			if($_REQUEST["search_actor"])
+				$or[] = $this -> genArray("actors", $type, $fix);
+			if($_REQUEST["search_tag"])
+				$or[] = $this -> genArray("tags", $type, $fix);
+			if($_REQUEST["search_country"])
+				$or[] = $this -> genArray("countries", $type, $fix);
+			if($_REQUEST["search_genre"])
+				$or[] = $this -> genArray("genres", $type, $fix);
+			$q = array(
+				"query" => array(
+					"filtered" => array(
+						"query" => array(
+							"match_all" => array()
+						),
+						"filter" => array(
+							"and" => array(
+								array("or" => $or),
+								array("range" => array(
+										"length" => array(
+											"from" 	=> $_REQUEST["length"][0],
+											"to"	=> $_REQUEST["length"][1]
+										)
+									)
+								),
+								array("range" => array(
+										"year" => array(
+											"from" 	=> $_REQUEST["year"][0],
+											"to"	=> $_REQUEST["year"][1]
+										)
+									)
+								),
+								array("range" => array(
+										"rating" => array(
+											"from" 	=> $_REQUEST["rating"][0],
+											"to"	=> $_REQUEST["rating"][1]
+										)
+									)
+								)
+							)
+						)
+					)
+				)
+			);
+			$url = 'http://127.0.0.1:9200/movies/movies/_search?pretty=true&size=10000';
+			echo $this -> execCurl($url, json_encode($q));
+		}
+	}
+
+	public function dashboard(){
+		?>
+		<iframe id="kibana" src="http://127.0.0.1:5601/app/kibana#/dashboard/MainMovies?embed=true&_g=(refreshInterval:(display:Off,pause:!f,value:0),time:(from:now-15m,mode:quick,to:now))&_a=(filters:!(),options:(darkTheme:!t),panels:!((col:1,id:graph-rating,panelIndex:2,row:8,size_x:12,size_y:3,type:visualization),(col:1,id:graph-years,panelIndex:3,row:3,size_x:12,size_y:3,type:visualization),(col:1,id:graph-length,panelIndex:4,row:13,size_x:12,size_y:5,type:visualization),(col:1,id:YearData,panelIndex:5,row:1,size_x:12,size_y:2,type:visualization),(col:1,id:RatingData,panelIndex:6,row:6,size_x:12,size_y:2,type:visualization),(col:1,id:LengthData,panelIndex:7,row:11,size_x:12,size_y:2,type:visualization)),query:(query_string:(analyze_wildcard:!t,query:'*')),title:MainMovies,uiState:())"></iframe>
+		<script type="text/javascript">
+		document.getElementById("kibana").width = window.innerWidth - 20;
+		document.getElementById("kibana").height = window.innerHeight - 20;
+		</script>
+		<?php
+	}
+
+	public function addToES(){
+		$data = $this -> movies_model -> getAllMoviesDeatils();
+		$url = 'http://127.0.0.1:9200/movies';
+		echo "mazanie: ";
+		pre_r($this -> execCurl($url, "", 9200, "DELETE"));
+		echo "<br/>\n";
+		$mapp = array(
+					"mapping" => array(
+						"movies" => array(
+							"properties" => array(
+								"movie_id" 	=> array("type" => "integer"),
+								"csfd_id" 	=> array("type" => "integer"),
+								"year" 		=> array("type" => "integer"),
+								"length" 	=> array("type" => "integer"),
+								"rating" 	=> array("type" => "float"),
+								"genres"	=> array(
+									"type"	=> "string",
+									"index" => "not_analyzed"
+								),
+								"actors"	=> array(
+									"type"	=> "string",
+									"index" => "not_analyzed"
+								)
+							)
+						)
+					)
+				);
+
+		$result = $this -> execCurl($url, json_encode($mapp), 9200, "PUT");
+		pre_r($mapp);
+		$output = array();
+		foreach ($data as $value) {
+			$temp["movie_id"] = $value["movie_id"];
+			$temp["title"] = $value["title"];
+			$temp["year"] = (int)$value["year"];
+			$temp["rating"] = (float)$value["rating"];
+			$temp["csfd_id"] = $value["csfd_id"];
+			$temp["imdb_id"] = $value["imdb_id"];
+			$temp["length"] = (int)$value["length"];
+			$temp["genres"] = $this -> processValue($value["genres"]);
+			$temp["director"] = $this -> processValue($value["director"]);
+			$temp["tags"] = $this -> processValue($value["tags"]);
+			$temp["countries"] = $this -> processValue($value["countries"]);
+			$temp["actors"] = $this -> processValue($value["actors"]);
+			$temp["title_sk"] = $value["title_sk"];
+			
+			$output[] = $temp;
+			$result = $this -> execCurl($url, json_encode($temp));
+			pre_r($temp);
+			//pre_r($result);
+		}
+		//pre_r($output);
+	}
+
+	private function execCurl($url, $json = NULL, $port = 9200, $type = "POST"){
+		$ci = curl_init();
+		curl_setopt($ci, CURLOPT_URL, $url);
+		curl_setopt($ci, CURLOPT_PORT, $port);
+		curl_setopt($ci, CURLOPT_TIMEOUT, 200);
+		curl_setopt($ci, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ci, CURLOPT_FORBID_REUSE, 0);
+		curl_setopt($ci, CURLOPT_CUSTOMREQUEST, $type);
+		if(!is_null($json))
+			curl_setopt($ci, CURLOPT_POSTFIELDS, $json);
+		return curl_exec($ci);
+	}
+
+	private function processValue($value){
+		$result = array();
+		$tmp = explode(",", $value);
+		foreach($tmp as $val){
+			$data = explode(":::", $val);
+			//$res["name"] = $data[0];
+			//$res["id"] = (int)$data[1];
+			//$result[] = $res;
+			$result[] = $data[0];
+		}
+		return $result;
+	}
+
 	public function add($id, $redirect = true, $csfd_id = false){
 		$data = $this -> imdb_model -> parse($id);
 		$data["imdb_id"] = $id;

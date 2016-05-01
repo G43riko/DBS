@@ -115,6 +115,10 @@ class Movies_model extends CI_Model {
 	MOVIES
 	**************************************/
 
+	public function getAllMoviesDeatils(){
+		return $this -> getFromWhere("movies.movies_detail_view");
+	}
+
 	public function getAllMovies(){
 		//SELECT * FROM movies.movies
 		return $this -> getFromWhere("movies.movies_view");
@@ -315,7 +319,7 @@ class Movies_model extends CI_Model {
 			$data["tags"] 		= quotteArray($data["tags"]);
 		if(isset($data["title"]))
 			$data["title"] 		= str_replace("'", "\"", $data["title"]);
-
+		//BEGIN;
 		$this -> db -> trans_start();
 		//pozrie sa či film už neexistuje
 		$result = $this -> getMovieByImdbId($data["imdb_id"]);
@@ -451,6 +455,7 @@ class Movies_model extends CI_Model {
 		}
 
 		//ukončí transakciu
+		//COMMIT;
 		$this -> db -> trans_complete();
 
 		return $movie_id;
@@ -607,6 +612,20 @@ class Movies_model extends CI_Model {
 		$this -> log("Pridal sa nový film s id: $movie_id ", 1);
 
 		return $movie_id;
+	}
+
+	public function getMoviesDatas(){
+		$sql = "SELECT 	MAX(year) AS max_year, 
+						MIN(year) AS min_year,
+						MIN(rating) AS min_rating,
+						MAX(rating) AS max_rating,
+						MIN(length) AS min_length,
+						MAX(length) AS max_length
+				FROM 	movies.movies";
+
+		$q = $this -> db -> query($sql);
+		
+		return $q -> num_rows() ? $q -> result_array()[0] : false;
 	}
 
 	public function createUpdatedMovie($id, $dataNew){

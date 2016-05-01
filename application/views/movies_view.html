@@ -13,8 +13,10 @@
 			id="movie_key" 
 			<?php if(isset($search))echo "value='$search'"; ?>
 			autofocus
-			onkeyup="searchMovieDB(event<?php if(isset($path)) echo ", '$path'";?>)">
+			onkeyup="searchMovieDB(event<?php if(isset($path)) echo ", '$path'";?>)"> | 
 	
+	<a href="http://localhost/movies/movies/qsearch">Pokročilé vyhladávanie</a>
+
 	<table class="table table-striped tablesorter sortable">
 		<thead>
 			<tr>
