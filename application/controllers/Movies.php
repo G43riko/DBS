@@ -248,7 +248,7 @@ class Movies extends CI_Controller {
 
 		$id = $this -> movies_model -> addMovieArray($data);
 		if($redirect)
-			$this -> detail($id);
+			redirect("movies/detail/$id");
 	}
 
 	public function searchDetail($imdb_id){
@@ -342,7 +342,7 @@ class Movies extends CI_Controller {
 		if(!$_REQUEST["movie_id"]){
 			$id = $this -> movies_model -> createNewMovie($_REQUEST);
 			$this -> db -> trans_complete();
-			redirect("movies/detail/" . $id);
+			redirect("movies/detail/$id");
 			return;
 		}
 
@@ -352,7 +352,7 @@ class Movies extends CI_Controller {
 		//$this -> movies_model -> updateMovie($_REQUEST["movie_id"], $_REQUEST);
 
 		$this -> db -> trans_complete();
-		redirect("movies/detail/" . $id);
+		redirect("movies/detail/$id");
 	}
 
 	public function index(){
