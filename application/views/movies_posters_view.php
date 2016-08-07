@@ -3,9 +3,9 @@
 	<table style="width: 100%">
 		<?php
 			$num = 0;
-			for($i=0 ; $i<$numY ; $i++){
+			for($i=0 ; $i<$numY ; $i++):
 				echo "<tr>";
-				for($j=0 ; $j<$numX ; $j++)
+				for($j=0 ; $j<$numX ; $j++):
 					if(isset($movies[$num]["poster"])):
 						if(strlen($movies[$num]["title"]) > 18)
 							$movies[$num]["title"] = substr($movies[$num]["title"], 0, 15) . "...";
@@ -20,14 +20,16 @@
 									<?=$movies[$num]["year"]?>
 								</div>
 
-								<img src="<?=getImage($movies[$num++]["poster"])?>" class="img-thumbnail">
+								<img src="<?=getImage($movies[$num]["poster"])?>" class="img-thumbnail">
 							</div>
 						</a>
 					</td>
 				<?php
 					endif;
+					$num++;
+				endfor;
 				echo "</tr>";
-			}
+			endfor;
 		?>
 	</table>
 	<a href="<?= movieURL . "posters/" . ($numY + 4)?>">

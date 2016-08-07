@@ -1,5 +1,6 @@
 <?php $this -> load -> view('header_view.html'); ?>
 	<h3><?= word("makers") ?></h3>
+	<a href="<?=makerURL?>posters"><?= word("showPosters")?></a> |
 	<label for="movie_key"> <?= word("searchMaker")?>:</label>
 	<input 	type="text" 
 			class="form-control-input" 

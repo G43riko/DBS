@@ -184,10 +184,15 @@
 	function getImage($url){
 		if(is_null($url) || empty($url) || !is_connected())
 			return false;
+		try{
 			$contents = file_get_contents($url);
 			$base64   = base64_encode($contents);
 			$ext = explode(".", $url)[1];
 			return ('data: image/' . $ext . ' ;base64,' . $base64);
+		}
+		catch(Exception $e){
+			return false;
+		}
 	}
 
 	function is_connected(){

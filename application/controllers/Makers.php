@@ -50,7 +50,14 @@ class Makers extends CI_Controller {
 		
 	}
 
-	
+	public function posters($numY = 4, $numX = 6){
+		$this -> load -> model("statistics_model");
+		$arr = array("movies" 	=> $this -> statistics_model -> getNthRecentMakers($numX * $numY, true),
+					 "numX" 	=> $numX,
+					 "numY" 	=> $numY);
+		$this -> load -> view("makers_posters_view", $arr);
+	}
+
 	/*
 	public function searchIMDB($name, $val = 1){
 		$data = $this -> imdb_model -> findMaker($name);

@@ -100,11 +100,13 @@ najnovší úživatelia
 		return $q -> num_rows() ? $q -> result_array() : false;
 	}
 
-	public function getNthRecentMakers($num){
-		$sql = "SELECT mg.name, mg.maker_id, count(*) as num
+	public function getNthRecentMakers($num, $withAvatar = false){
+		$sql = "SELECT mg.name, mg.maker_id, count(*) as num, mg.d_birthday, mg.avatar
 				FROM movies.makers mg
-				JOIN movies.mtm_movie_maker mmg on mg.maker_id = mmg.maker_id
-				GROUP BY mg.name, mg.maker_id
+				JOIN movies.mtm_movie_maker mmg on mg.maker_id = mmg.maker_id ";
+		if($withAvatar)
+			$sql .= "WHERE mg.avatar IS NOT NULL ";
+		$sql .= "GROUP BY mg.name, mg.maker_id, mg.d_birthday, mg.avatar
 				ORDER BY num DESC, mg.name 
 				LIMIT $num";
 		$q = $this -> db -> query($sql);

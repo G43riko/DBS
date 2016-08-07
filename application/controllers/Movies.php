@@ -379,7 +379,7 @@ class Movies extends CI_Controller {
 					 "numX" 	=> $numX,
 					 "numY" 	=> $numY);
 		$this -> load -> view("movies_posters_view", $arr);
-	}	
+	}
 
 	public function searchInDb($name){
 		$data = $this -> movies_model -> getSearchMovies($name);
